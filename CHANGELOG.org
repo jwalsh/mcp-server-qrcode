@@ -1,3 +1,21 @@
+# 0.3.0 (2025-02-28)
+
+
+### Bug Fixes
+
+* improve commit history rewriting script ([66d261f](https://github.com/jwalsh/mcp-server-qrcode/commit/66d261f2d8b7fb8988699ea245614e48e1e51368))
+
+
+### Features
+
+* add context target for LLM operations ([ab00ef4](https://github.com/jwalsh/mcp-server-qrcode/commit/ab00ef4a9d5b308e2999f0ee013484b474af9224))
+* add QR code generation via stdin and MCP server ([d30d24c](https://github.com/jwalsh/mcp-server-qrcode/commit/d30d24c59cc087d289543873739154fc6a91da56))
+* add script to rewrite commit messages ([3d2bae0](https://github.com/jwalsh/mcp-server-qrcode/commit/3d2bae0e4dac3f38a4c9eeb1131d73180acf5ccf))
+* enhance build process and update documentation ([016f89b](https://github.com/jwalsh/mcp-server-qrcode/commit/016f89b3b62a780d7ed441cfa3d6a0de5c35d79d))
+* prepare for package publishing ([5598070](https://github.com/jwalsh/mcp-server-qrcode/commit/5598070717ac80c2270bfc6cea22f0991b732c80))
+
+
+
 #+TITLE: Changelog
 #+OPTIONS: toc:nil
 
