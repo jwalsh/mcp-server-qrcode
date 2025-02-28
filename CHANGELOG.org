@@ -1,25 +1,23 @@
 #+TITLE: Changelog
-#+AUTHOR: Jason Walsh
-#+EMAIL: j@wal.sh
+#+OPTIONS: toc:nil
 
-All notable changes to this project will be documented in this file.
+* [0.2.0] - 2025-02-28
+** Features
+- Initial release of MCP QR Code Server
+- Support for QR code generation via CLI
+- Configurations for size and error correction
+- Preparatory work for Claude Desktop and Emacs integrations
 
-The format is based on [[https://keepachangelog.com/en/1.0.0/][Keep a Changelog]],
-and this project adheres to [[https://semver.org/spec/v2.0.0.html][Semantic Versioning]].
+** Installation
+#+begin_src bash
+npm install -g @jwalsh/mcp-server-qrcode
+#+end_src
 
-* [Unreleased]
+** Usage Examples
+#+begin_src bash
+# Generate a basic QR code
+mcp-server-qrcode generate "https://example.com"
 
-** Added
-- Initial implementation of QR code generation MCP server
-- Support for PNG and UTF8 output formats
-- Configurable error correction levels and sizes
-- Command-line interface
-- Documentation in Org Mode format
-
-* [0.1.0] - 2025-02-28
-
-** Added
-- Initial project setup
-- QR code generation functionality
-- Support for MCP Tool API
-- Basic documentation
+# With custom size
+mcp-server-qrcode generate "https://example.com" --size 300
+#+end_src
