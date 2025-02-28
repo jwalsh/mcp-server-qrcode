@@ -1,11 +1,12 @@
 # TypeScript
-dist/
 build/
 npm-debug.log*
 *.js.map
 *.tsbuildinfo
 .npm
 .eslintcache
+README.md
+*.tgz
 
 # Node.js
 node_modules/
@@ -71,6 +72,9 @@ flycheck_*.el
 .projectile
 .dir-locals.el
 /network-security.data
+
+# Backup 
+*.bak
 
 # VS Code
 .vscode/*
