@@ -4,14 +4,16 @@
 Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP).
 
 * Installation
-#+begin_src bash
+#+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
+npm view @jwalsh/mcp-server-qrcode
+
 npm install -g @jwalsh/mcp-server-qrcode
 #+end_src
 
 * Usage
 
 ** Basic QR Code Generation
-#+begin_src bash
+#+begin_src bash :tangle generated/mcp-server-qrcode-test.sh :mkdirp yes
 # Generate a QR code for a URL
 mcp-server-qrcode generate "https://example.com"
 
@@ -23,16 +25,42 @@ mcp-server-qrcode generate "https://example.com" --error-correction M
 #+end_src
 
 ** Claude Desktop
+
+#+begin_src json :tangle generated/claude_desktop_config.json :mkdirp yes
+  {
+    "mcpServers": {
+      "qrcode": {
+        "args": [
+          "-y",
+          "@jwalsh/mcp-server-qrcode"
+        ],
+        "command": "npx"
+      }
+    }
+  }
+#+end_src
+
 1. Open Claude Desktop
 2. Use the integrated QR code generation feature
 3. Select content to generate QR code
 
+
+
+
 ** Emacs (mcp.el)
-#+begin_src elisp
+
+#+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
 ;; In Emacs with mcp.el loaded
-(mcp-generate-qrcode "https://example.com")
-;; With additional options
-(mcp-generate-qrcode "https://example.com" :size 300 :error-correction 'medium)
+(mcp-connect-server "qrcode" 
+                    "npx" 
+                    '("-y" "@jwalsh/mcp-server-qrcode")
+                    :initial-callback
+                    (lambda (connection)
+                      (message "Connected to %s" (jsonrpc-name connection)))
+                    :tools-callback
+                    (lambda (connection tools)
+                      (message "Available tools: %s" tools)))
+
 #+end_src
 
 * Configuration Options

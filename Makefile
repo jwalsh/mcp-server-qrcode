@@ -1,3 +1,7 @@
+CURRENT_DATE := $(shell date +%Y-%m-%d)
+NAME := $(shell jq -r .name package.json)
+VERSION := $(shell jq -r .version package.json)
+
 .PHONY: help all install build clean run dev test test-watch test-coverage lint lint-fix format format-check typecheck ci publish deploy initialize setup quickstart check-publish release-patch release-minor release-major
 
 # Default target
@@ -101,7 +105,7 @@ publish: clean build check-publish build-files ## Clean, build, check publicatio
 
 check-publish: ## Check package publication
 	@echo "Checking package publication..."
-	npm run check-publish
+	npm view @jwalsh/mcp-server-qrcode
 
 deploy: build dist ## Package for deployment
 	@echo "Creating deployment package..."

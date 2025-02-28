@@ -28,7 +28,6 @@
     "prepare": "npm run build",
     "ci": "npm run lint && npm run format:check && npm run typecheck && npm run test:ci",
     "prepublishOnly": "npm run build",
-    "check-publish": "npm pack && tar -xvzf jwalsh-mcp-server-qrcode-*.tgz && ls -R package && rm -rf package && rm jwalsh-mcp-server-qrcode-*.tgz",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.org -s",
     "release": "./scripts/release.sh",
     "release:patch": "./scripts/release.sh patch",
