@@ -34,6 +34,15 @@ dev: ## Run in development mode with ts-node
 	@echo "Running in development mode..."
 	npx ts-node --esm src/cli.ts
 
+inspector: ## MCP Inspector
+	npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
+
+inspector-dev: build/index.js ## MCP Inspector: development 
+	npx @modelcontextprotocol/inspector node build/index.js
+
+cli: ## Validate CLI
+	node build/cli.js $NAME
+
 test: ## Run tests
 	@echo "Running tests..."
 	npm test
@@ -122,3 +131,12 @@ release-major: ## Release a major version
 	@./scripts/release.sh major
 
 release: release-patch ## Alias for patch release
+
+static:
+	mkdir -p static
+
+static/qrcode-npm.png: static
+	qrencode -o $@ 'https://www.npmjs.com/package/@jwalsh/mcp-server-qrcode'
+
+qrcode-npm: ## https://www.npmjs.com/package/@jwalsh/mcp-server-qrcode
+	qrencode -o - -t UTF8 'https://www.npmjs.com/package/@jwalsh/mcp-server-qrcode'

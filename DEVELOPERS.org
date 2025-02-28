@@ -90,7 +90,9 @@ This server can be used with any MCP-compatible client. Here's an example of how
 mcp-inspector -- node build/cli.js
 #+end_src
 
+* Debugging 
 
+- https://modelcontextprotocol.io/docs/tools/debugging
 
 * Testing
 #+begin_src bash
