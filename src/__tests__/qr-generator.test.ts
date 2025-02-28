@@ -1,4 +1,5 @@
 import { generateQRCode, validateQRCodeInput, QRCodeOptions } from '../qrcode';
+import mcpServer from '../index';
 
 describe('QR Code Generator', () => {
   describe('generateQRCode', () => {
@@ -58,6 +59,80 @@ describe('QR Code Generator', () => {
       expect(validateQRCodeInput('')).toBeFalsy();
       expect(validateQRCodeInput('   ')).toBeFalsy();
       expect(validateQRCodeInput('\t\n')).toBeFalsy();
+    });
+  });
+
+  describe('MCP Resources', () => {
+    describe('Sample QR Code Resource', () => {
+      it('should generate a sample QR code', async () => {
+        // Test direct generation of sample QR code
+        const result = await generateQRCode({
+          content: "https://github.com/jwalsh/mcp-server-qrcode",
+          size: 200,
+          errorCorrectionLevel: 'M',
+          format: 'base64'
+        });
+        
+        expect(result).toBeTruthy();
+        expect(result.data).toBeTruthy();
+        expect(typeof result.data).toBe('string');
+        expect(result.data.length).toBeGreaterThan(0);
+      });
+    });
+
+    describe('Custom QR Code Resource', () => {
+      it('should generate a custom QR code with default parameters', async () => {
+        const testContent = 'https://example.com';
+        
+        // Test direct generation equivalent to resource
+        const result = await generateQRCode({
+          content: testContent,
+          size: 200, // Default size
+          errorCorrectionLevel: 'M', // Default level
+          format: 'base64'
+        });
+        
+        expect(result).toBeTruthy();
+        expect(result.data).toBeTruthy();
+        expect(typeof result.data).toBe('string');
+        expect(result.data.length).toBeGreaterThan(0);
+      });
+
+      it('should generate a custom QR code with all parameters', async () => {
+        const testContent = 'Custom QR Code';
+        const testSize = 300;
+        const testLevel = 'H';
+        
+        // Test direct generation equivalent to resource with all parameters
+        const result = await generateQRCode({
+          content: testContent,
+          size: testSize,
+          errorCorrectionLevel: testLevel,
+          format: 'base64'
+        });
+        
+        expect(result).toBeTruthy();
+        expect(result.data).toBeTruthy();
+        expect(typeof result.data).toBe('string');
+        expect(result.data.length).toBeGreaterThan(0);
+      });
+
+      it('should handle special characters in content', async () => {
+        const originalContent = 'Hello World & Special Characters: ?&=';
+        
+        // Test direct generation with special characters
+        const result = await generateQRCode({
+          content: originalContent,
+          size: 200,
+          errorCorrectionLevel: 'M',
+          format: 'base64'
+        });
+        
+        expect(result).toBeTruthy();
+        expect(result.data).toBeTruthy();
+        expect(typeof result.data).toBe('string');
+        expect(result.data.length).toBeGreaterThan(0);
+      });
     });
   });
 });

@@ -5,7 +5,7 @@ import { generateQRCode } from './qrcode.js';
 // Create an MCP server
 const server = new McpServer({
   name: "QR Code Generator",
-  version: "0.1.0"
+  version: "0.3.6"
 });
 
 // Add the QR code generation tool

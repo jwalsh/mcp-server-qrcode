@@ -1,7 +1,7 @@
 #+TITLE: MCP QR Code Server
 
 * Overview
-Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP).
+Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP). Now with support for both MCP tools and resources.
 
 * Installation
 #+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
@@ -29,6 +29,20 @@ Name: John Doe
 Email: john@example.com
 Phone: 555-123-4567
 #+end_example
+
+** Using MCP Resources (NEW)
+Access QR codes directly via resource URIs:
+
+#+begin_src bash :tangle generated/resource-example.sh :mkdirp yes
+# Get the sample QR code
+mcp-server-qrcode resource "qrcode://sample" -o sample.png
+
+# Generate custom QR code with default settings
+mcp-server-qrcode resource "qrcode://https://anthropic.com" -o anthropic.png
+
+# Generate QR code with custom parameters
+mcp-server-qrcode resource "qrcode://Hello%20World?size=300&level=H" -o hello.png -v
+#+end_src
 
 * Usage
 
@@ -62,8 +76,28 @@ npm install -g @modelcontextprotocol/inspector
 mcp-inspector -- mcp-server-qrcode
 #+end_src
 
+** CLI Commands
+The server provides several CLI commands:
+
+#+begin_src bash :tangle generated/cli-commands.sh :mkdirp yes
+# 1. Start the MCP server (default)
+mcp-server-qrcode server
+
+# 2. Generate QR code directly
+mcp-server-qrcode generate -c "https://example.com" -s 300 -e H -f text
+mcp-server-qrcode generate -c "https://example.com" -o qrcode.png -f image
+
+# 3. Access QR codes via resources
+mcp-server-qrcode resource "qrcode://sample" -o sample.png
+mcp-server-qrcode resource "qrcode://https://example.com?size=400&level=Q" -o custom.png -v
+
+# 4. Pipe content to generate QR codes
+echo "https://example.com" | mcp-server-qrcode
+cat myfile.txt | mcp-server-qrcode
+#+end_src
+
 ** Development & Testing
-For local development and testing, you can use additional CLI features:
+For local development and testing:
 
 #+begin_src bash
 # Clone and set up the repository
@@ -72,16 +106,11 @@ cd mcp-server-qrcode
 npm install
 npm run build
 
+# Run tests
+npm test
+
 # Run MCP server for Inspector testing
 npm start
-
-# Test CLI features locally (development only)
-npm run cli -- -g "https://example.com"
-npm run cli -- -g "https://example.com" -s 300 -e H
-
-# Test stdin piping with the CLI (development only)
-echo "https://example.com" | npm run cli
-cat myfile.txt | npm run cli
 #+end_src
 
 ** Claude Desktop
@@ -104,9 +133,6 @@ cat myfile.txt | npm run cli
 2. Use the integrated QR code generation feature
 3. Select content to generate QR code
 
-
-
-
 ** Emacs (mcp.el)
 
 #+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
@@ -121,6 +147,42 @@ cat myfile.txt | npm run cli
                     (lambda (connection tools)
                       (message "Available tools: %s" tools)))
 
+#+end_src
+
+* Resource-Like URI API (NEW)
+This server now supports a resource-like URI API for direct QR code generation.
+
+** Sample Resource
+#+begin_src bash
+# Access the sample QR code
+mcp-server-qrcode resource "qrcode://sample" -o sample.png
+#+end_src
+
+** Custom Resources
+Generate custom QR codes with flexible parameters using a URI format:
+
+#+begin_src bash
+# Basic usage (with defaults)
+mcp-server-qrcode resource "qrcode://https://example.com" -o example.png
+
+# With custom size and error correction
+mcp-server-qrcode resource "qrcode://Hello%20World?size=300&level=H" -o hello.png
+
+# Resource URI format
+# qrcode://{content}?size={pixels}&level={L|M|Q|H}
+#+end_src
+
+** Resource URI Parameters
+- ~content~: Text to encode in the QR code (required)
+- ~size~: QR code size in pixels (100-1000, default: 200)
+- ~level~: Error correction level (L, M, Q, H, default: M)
+
+** View Generated QR Codes
+Add the ~-v~ or ~--view~ flag to automatically open the generated QR code:
+
+#+begin_src bash
+# Generate and view in one step
+mcp-server-qrcode resource "qrcode://sample" -o sample.png -v
 #+end_src
 
 * Configuration Options
