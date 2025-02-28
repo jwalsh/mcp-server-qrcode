@@ -22,6 +22,7 @@
 - **CRITICAL**: ALWAYS use `git commit --no-gpg-sign` when committing
 - **NEVER** allow GPG signing of commits as it breaks the tooling
 - This applies to all commits in this repository
+- **IMPORTANT**: Also use `--no-gpg-sign` with `npm version patch -m "chore: bump version to %s"` to prevent freezing
 
 ## Server Entry Points
 - MCP Server: Use `build/main.js` as the main entry point for all MCP clients
