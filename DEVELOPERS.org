@@ -302,13 +302,17 @@ Follow these steps to release a new version of the package:
    gh release edit vX.Y.Z --draft=false
    #+end_src
 
-8. *Verify Release*: Confirm successful publication
+8. *Verify Release*: Confirm successful publication and functionality
    #+begin_src bash
    # Verify npm package
    npm view @jwalsh/mcp-server-qrcode version
    
    # Verify GitHub release
    gh release view vX.Y.Z --json name,isDraft,publishedAt
+   
+   # Verify server functionality with MCP Inspector
+   make inspector-dev
+   # Test in the inspector UI by creating a QR code
    #+end_src
 
 ** Automated Release

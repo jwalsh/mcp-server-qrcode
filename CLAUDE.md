@@ -23,6 +23,16 @@
 - **NEVER** allow GPG signing of commits as it breaks the tooling
 - This applies to all commits in this repository
 
+## Server Entry Points
+- MCP Server: Use `build/main.js` as the main entry point for all MCP clients
+- MCP Inspector: Use `make inspector-dev` to test with the inspector
+- CLI usage: `node build/cli.js` for direct CLI features
+
+## Pre-Release Verification
+- Always test with MCP Inspector before release: `make inspector-dev`
+- Verify functionality through both Inspector and Claude Desktop
+- Confirm QR code generation works with various input types
+
 ## ESLint Migration Notes
 - Migrated to flat configuration in `eslint.config.js`
 - Added `@stylistic/eslint-plugin` for consistent formatting
@@ -49,6 +59,6 @@
 - All documentation uses .org extension (not .md)
 
 ## CLI Usage
-- Server mode: Run `node build/cli.js` to start MCP server
+- Server mode: Run `node build/main.js` to start MCP server
 - Pipe input: `echo "content" | node build/cli.js` to generate QR code directly from stdin
 - Direct CLI processing supports terminal-friendly output format
