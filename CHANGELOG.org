@@ -1,3 +1,16 @@
+## [0.3.6](https://github.com/jwalsh/mcp-server-qrcode/compare/v0.3.0...v0.3.6) (2025-02-28)
+
+
+### Bug Fixes
+
+* add no-gpg-sign flag to npm version in release script ([6cb956e](https://github.com/jwalsh/mcp-server-qrcode/commit/6cb956e3119cc47f1754b2f9e85f2cac6bf0ea9e))
+* ensure QR code image data format works across all MCP clients ([0f1f907](https://github.com/jwalsh/mcp-server-qrcode/commit/0f1f907b64865efe59236ee916e5381d9ab53b10))
+* ensure QR code image data format works across all MCP clients ([8486900](https://github.com/jwalsh/mcp-server-qrcode/commit/848690025efad4710edba240bef0b288ae2be2cd))
+* ensure QR code image data format works across all MCP clients ([af775f1](https://github.com/jwalsh/mcp-server-qrcode/commit/af775f1fd49b44980ba9d2940fbac4ebeea6da0d))
+* standardize server entry point and remove legacy file ([7ef8d15](https://github.com/jwalsh/mcp-server-qrcode/commit/7ef8d1570042910c239674cdd0c76fcca2c721a6))
+
+
+
 # 0.3.0 (2025-02-28)
 
 
