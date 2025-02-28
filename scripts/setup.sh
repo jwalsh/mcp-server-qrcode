@@ -1,26 +1,25 @@
 #!/bin/bash
-# Setup script for QR Code MCP Server
+set -e
 
-echo "Setting up QR Code MCP Server..."
+echo "Setting up development environment..."
 
-# Check if qrencode is installed
-if ! command -v qrencode &> /dev/null; then
-    echo "Warning: qrencode is not installed."
-    echo "On macOS: brew install qrencode"
-    echo "On Ubuntu/Debian: sudo apt-get install qrencode"
+# Check Node.js version
+required_node_version="18.0.0"
+current_node_version=$(node -v | sed 's/v//')
+
+if [ "$(printf '%s\n' "$required_node_version" "$current_node_version" | sort -V | head -n1)" != "$required_node_version" ]; then
+    echo "Error: Node.js version $required_node_version or higher is required."
+    exit 1
 fi
 
 # Install dependencies
-echo "Installing dependencies..."
 npm install
 
-# Make files executable
-chmod +x setup.sh
+# Run initial build
+npm run build
 
-echo "Setup complete!"
-echo "To build and run the server, use:"
-echo "  npm run build"
-echo "  npm start"
-echo "Or with Make:"
-echo "  make build"
-echo "  make run"
+# Verify setup
+npm run typecheck
+npm run lint
+
+echo "Development environment setup complete!"
