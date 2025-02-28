@@ -314,6 +314,10 @@ Follow these steps to release a new version of the package:
    make inspector-dev
    # Test in the inspector UI by creating a QR code
    #+end_src
+   
+   When validating with MCP Inspector, the successful connection should look like this:
+   
+   [[file:static/localhost_5173_.png][MCP Inspector Validation]]
 
 ** Automated Release
 For minor and major releases, you can use the release script:
