@@ -26,6 +26,7 @@ lerna-debug.log*
 
 # Scratchpad shell scripts
 _.sh
+generated/
 
 # macOS
 .DS_Store

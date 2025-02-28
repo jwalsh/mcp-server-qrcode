@@ -15,6 +15,21 @@ npm install -g mcp-server-qrcode
 2. Use the integrated QR code generation feature
 3. Select desired content or context
 
+#+begin_src json
+  {
+    "mcpServers": {
+      "qrcode": {
+        "args": [
+          "-y",
+          "@jwalsh/mcp-server-qrcode"
+        ],
+        "command": "npx"
+      }
+    }
+  }
+
+#+end_src
+
 ** Command Line Interface
 #+begin_src bash
 # Generate a QR code
@@ -25,9 +40,19 @@ mcp-server-qrcode generate "https://example.com" --size 300 --error-correction M
 #+end_src
 
 ** Emacs (mcp.el)
-#+begin_src elisp
+
+#+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
 ;; In Emacs with mcp.el loaded
-(mcp-generate-qrcode "https://example.com")
+(mcp-connect-server "qrcode" 
+                    "npx" 
+                    '("-y" "@jwalsh/mcp-server-qrcode")
+                    :initial-callback
+                    (lambda (connection)
+                      (message "Connected to %s" (jsonrpc-name connection)))
+                    :tools-callback
+                    (lambda (connection tools)
+                      (message "Available tools: %s" tools)))
+
 #+end_src
 
 * Developer Documentation
