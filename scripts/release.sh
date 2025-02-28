@@ -18,7 +18,7 @@ if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
 fi
 
 # Update version in package.json
-npm version "$BUMP_TYPE" -m "Bump version to %s"
+npm version "$BUMP_TYPE" -m "chore: bump version to %s"
 
 # Generate changelog
 npx conventional-changelog -p angular -i CHANGELOG.org -s
@@ -26,14 +26,28 @@ npx conventional-changelog -p angular -i CHANGELOG.org -s
 # Stage changelog
 git add CHANGELOG.org
 
-# Commit changelog updates
-git commit -m "Update CHANGELOG.org for new version"
+# Commit changelog updates with no GPG signing and [skip ci]
+git commit --no-gpg-sign -m "docs: update CHANGELOG.org for new version [skip ci]"
 
 # Push changes and tags
 git push origin main
 git push origin --tags
 
-# Optional: Publish to npm
-npm publish
+# Generate package tarball
+npm pack
+
+# Create GitHub draft release
+VERSION=$(jq -r .version package.json)
+gh release create "v$VERSION" *.tgz --title "v$VERSION" --notes "See CHANGELOG.org for details" --draft
+
+# Prompt to manually publish to npm due to 2FA requirement
+echo "Package is ready for npm publishing."
+echo "Due to 2FA requirements, run: npm publish"
+
+# Prompt for verification and finalization
+echo "After npm publish, verify:"
+echo "1. Run: npm view @jwalsh/mcp-server-qrcode version"
+echo "2. Test with MCP Inspector: make inspector-dev"
+echo "3. Publish GitHub release: gh release edit v$VERSION --draft=false"
 
 echo "Release process completed successfully!"

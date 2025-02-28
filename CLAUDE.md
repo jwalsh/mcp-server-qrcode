@@ -28,6 +28,17 @@
 - MCP Inspector: Use `make inspector-dev` to test with the inspector
 - CLI usage: `node build/cli.js` for direct CLI features
 
+## Release Process Sequence
+1. Update version with `npm version patch -m "chore: bump version to %s"`  
+2. Generate changelog with `npm run changelog`
+3. Commit changelog with `git commit --no-gpg-sign -m "docs: update CHANGELOG.org [skip ci]"`
+4. Push changes with `git push origin main && git push origin --tags`
+5. Create draft release `gh release create v{VERSION} --draft`
+6. Test with MCP Inspector `make inspector-dev`
+7. Publish to npm `npm publish` (requires 2FA)
+8. Verify package `npm view @jwalsh/mcp-server-qrcode version` 
+9. Publish GitHub release `gh release edit v{VERSION} --draft=false`
+
 ## Pre-Release Verification
 - Always test with MCP Inspector before release: `make inspector-dev`
 - Verify functionality through both Inspector and Claude Desktop
