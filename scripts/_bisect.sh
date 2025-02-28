@@ -5,17 +5,34 @@
 #   ./scripts/_bisect.sh            # Dry run - shows what would change
 #   ./scripts/_bisect.sh --force    # Apply changes and force push
 
-# Define commit message mappings
-# Define commit message mappings
+# Define commit message mappings - full history with conventional commits
 MAPPINGS=(
+    # All commits with conventional format
+    "d30d24c:feat: add QR code generation via stdin and MCP server"
+    "49ac61d:docs: add debugging section and inspector targets"
+    "27d1e5b:chore: bump version to 0.2.4"
+    "c12c004:chore: bump version to 0.2.3"
+    "d7ad89a:chore: mark all scripts as executable"
+    "3d2bae0:feat: add script to rewrite commit messages"
+    "016f89b:feat: enhance build process and update documentation"
+    "d2fdb33:chore: bump version to 0.2.2"
+    "24e06a4:chore: bump version to 0.2.1"
+    "8c34892:refactor: consolidate build and publish process"
+    "289fb82:feat: implement release management with changelog generation"
+    "c41b29c:chore: bump version to 0.2.0 and add publish check"
+    "84b8c9d:docs: update documentation, prepare for initial publication"
+    "eab4b0c:chore: remove unused commit.sh script"
+    "b244d35:feat: initial QR Code MCP Server implementation"
+    
+    # Include both short and long hashes for complete coverage
     "990c9de20c185d1087b0452f7e59e1c23b5af914:chore: bump version to 0.2.2"
     "7c62a98ba51277ce5b290c6becf00f4b747239f7:chore: bump version to 0.2.1"
-    "b4f6396cdb35ad8f534f5643f8e5ede689bd4c22:refactor: consolidate build and publish process, add QR code tests"
+    "b4f6396cdb35ad8f534f5643f8e5ede689bd4c22:refactor: consolidate build and publish process"
     "30acb91333708689d4df0a50afc30d218086ff37:feat: implement release management with changelog generation"
-    "68f2a45bfaa8a798a90812ecef813d049c5916b9:chore: bump version to 0.2.0, add publish check"
+    "68f2a45bfaa8a798a90812ecef813d049c5916b9:chore: bump version to 0.2.0 and add publish check"
     "53998b7cab8476abf8debacd1fae7b85379a5fb2:docs: update documentation, prepare for initial publication"
     "eab4b0c5f21c5c5634e8b4cec6f851e28ba0f9a9:chore: remove unused commit.sh script"
-    "b244d35d74a61c119a1084b94901525d89eb3abe:feat: initial commit: QR Code MCP Server implementation"
+    "b244d35d74a61c119a1084b94901525d89eb3abe:feat: initial QR Code MCP Server implementation"
 )
 
 # Default to dry run
