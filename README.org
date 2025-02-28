@@ -10,6 +10,26 @@ npm view @jwalsh/mcp-server-qrcode
 npm install -g @jwalsh/mcp-server-qrcode
 #+end_src
 
+* Quick Examples
+
+** With Claude Desktop
+Ask Claude to generate a QR code for any content:
+
+#+begin_example
+Please generate a QR code for https://anthropic.com
+#+end_example
+
+#+begin_example
+Generate a QR code for the Wi-Fi network "GuestWiFi" with password "Welcome123"
+#+end_example
+
+#+begin_example
+Create a QR code for my contact information:
+Name: John Doe
+Email: john@example.com
+Phone: 555-123-4567
+#+end_example
+
 * Usage
 
 ** MCP Server Usage (Primary Mode)

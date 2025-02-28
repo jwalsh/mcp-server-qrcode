@@ -248,6 +248,74 @@ make format
 make ci
 #+end_src
 
+* Release Process
+
+** Release Workflow
+Follow these steps to release a new version of the package:
+
+1. *Update Version*: Bump the version in package.json
+   #+begin_src bash
+   # Use npm version to update package.json
+   npm version patch  # or minor, major
+   #+end_src
+
+2. *Generate Changelog*: Update the CHANGELOG.org file
+   #+begin_src bash
+   npm run changelog
+   #+end_src
+
+3. *Commit Changes*: Commit the version and changelog updates
+   #+begin_src bash
+   # CRITICAL: Never use GPG signing for commits in this repo
+   git add package.json package-lock.json CHANGELOG.org
+   git commit --no-gpg-sign -m "chore: bump version to X.Y.Z"
+   #+end_src
+
+4. *Create Tag*: Tag the release
+   #+begin_src bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   #+end_src
+
+5. *Create GitHub Release*: Create a release with notes from the changelog
+   #+begin_src bash
+   # Generate release tarball
+   npm pack
+   
+   # Create draft release with the tarball
+   gh release create vX.Y.Z --notes "Release notes here" --title "vX.Y.Z" --draft
+   gh release upload vX.Y.Z *.tgz
+   #+end_src
+
+6. *Publish to npm*: Publish the package (requires 2FA)
+   #+begin_src bash
+   npm publish
+   #+end_src
+
+7. *Publish GitHub Release*: Remove draft status from the release
+   #+begin_src bash
+   gh release edit vX.Y.Z --draft=false
+   #+end_src
+
+8. *Verify Release*: Confirm successful publication
+   #+begin_src bash
+   # Verify npm package
+   npm view @jwalsh/mcp-server-qrcode version
+   
+   # Verify GitHub release
+   gh release view vX.Y.Z --json name,isDraft,publishedAt
+   #+end_src
+
+** Automated Release
+For minor and major releases, you can use the release script:
+#+begin_src bash
+# For minor releases
+npm run release:minor
+
+# For major releases
+npm run release:major
+#+end_src
+
 * Contributing
 1. Fork the repository
 2. Create a feature branch
