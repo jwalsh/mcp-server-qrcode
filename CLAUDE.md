@@ -18,6 +18,11 @@
 7. Lint code: `make lint`
 8. Fix linting issues: `make lint-fix`
 
+## Git Commit Requirements
+- **CRITICAL**: ALWAYS use `git commit --no-gpg-sign` when committing
+- **NEVER** allow GPG signing of commits as it breaks the tooling
+- This applies to all commits in this repository
+
 ## ESLint Migration Notes
 - Migrated to flat configuration in `eslint.config.js`
 - Added `@stylistic/eslint-plugin` for consistent formatting
