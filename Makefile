@@ -59,6 +59,9 @@ ci: ## Run all checks (lint, format, typecheck, test)
 	@echo "Running all checks..."
 	npm run ci
 
+context: ## Provide context to LLMs
+	files-to-prompt -c src Makefile README.org DEVELOPERS.org package.json scripts CLAUDE.md
+
 lint: ## Lint code with ESLint
 	@echo "Linting code..."
 	npm run lint
