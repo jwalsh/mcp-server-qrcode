@@ -1,112 +1,115 @@
-#+TITLE: Developer Guide
-#+AUTHOR: Jason Walsh
-#+EMAIL: j@wal.sh
+#+TITLE: Developer Guide for MCP QR Code Server
 
-* Getting Started
+* Prerequisites
+** System Requirements
+- Node.js >= 18.0.0
+- ~qrencode~ utility installed on your system
+  
+*** MacOS Installation
+#+begin_src bash
+brew install qrencode
+#+end_src
 
-This document provides guidance for developers working on the QR Code MCP Server project.
+*** Linux (Debian/Ubuntu) Installation
+#+begin_src bash
+apt-get install qrencode
+#+end_src
 
-* Development Environment Setup
+*** Linux (Red Hat/Fedora) Installation
+#+begin_src bash
+dnf install qrencode
+#+end_src
 
-** Prerequisites
-
-- Node.js (v18.0.0 or higher)
-- npm (comes with Node.js)
-- ~qrencode~ command-line utility
-- Git
-- A text editor/IDE of your choice (e.g., Emacs, VS Code)
-
-** Initial Setup
-
+* Installation
 #+begin_src bash
 # Clone the repository
-git clone https://github.com/[your-username]/mcp-server-qrcode.git
+git clone https://github.com/jwalsh/mcp-server-qrcode.git
 cd mcp-server-qrcode
 
 # Install dependencies
 npm install
 
-# Build the project
+# Build the server
 npm run build
 #+end_src
 
-** Running in Development Mode
+* Development Setup
 
+** Initial Project Setup
 #+begin_src bash
-npm run dev
+# Initialize the project
+make initialize
+
+# Set up development environment
+make setup
 #+end_src
 
-This uses ts-node to run the TypeScript code directly without requiring a build step.
+** Running the Project
+#+begin_src bash
+# Start in development mode
+make dev
 
-* Project Structure
+# Quick start the application
+make quickstart
+#+end_src
 
-- ~src/~: Source code
-  - ~index.ts~: Main server implementation
-  - ~cli.ts~: Command-line interface
-- ~build/~: Compiled JavaScript (generated)
-- ~tests/~: Test files
+* Running the Server
+#+begin_src bash
+# Start the server
+npm start
 
-* Coding Standards
+# Start with verbose logging
+npm start -- -v
+#+end_src
 
-** TypeScript
+The server will start and listen for MCP requests over stdin/stdout.
 
-- Use explicit types where beneficial for readability
-- Follow the existing code style (enforced by ESLint and Prettier)
-- Write JSDoc comments for public functions
+* Using with MCP Clients
+This server can be used with any MCP-compatible client. Here's an example of how to use it with the MCP Inspector:
 
-** Testing
+#+begin_src bash
+mcp-inspector -- node build/cli.js
+#+end_src
 
-- Write unit tests for new functionality
-- Update existing tests when changing functionality
-- Run tests with ~npm test~
+* Testing
+#+begin_src bash
+# Run tests
+make test
 
-* Pull Request Process
+# Run tests with watch
+make test-watch
 
-1. Create a branch for your changes
-2. Make your changes and commit them
-3. Push your branch to your fork
-4. Create a pull request
-5. Wait for review
+# Run tests with coverage
+make test-coverage
+#+end_src
 
-* Release Process
+* Linting and Formatting
+#+begin_src bash
+# Lint code
+make lint
 
-1. Update version number in ~package.json~
-2. Update CHANGELOG.org
-3. Commit changes
-4. Create a tag for the new version
-5. Push to main branch and push tags
+# Automatically fix linting issues
+make lint-fix
 
-* Working with MCP
-
-For details on the Model Context Protocol (MCP) specification, refer to the [[https://modelcontextprotocol.io][official documentation]].
-
-* Debugging Tips
-
-** Debugging the Server
-
-- Enable verbose logging with ~npm start -- -v~
-- Add debug statements with ~console.debug~
-- Use the MCP Inspector for testing: ~mcp-inspector -- node build/cli.js~
-
-** Common Issues
-
-- Ensure ~qrencode~ is properly installed and in your PATH
-- Check that you're using a compatible version of Node.js
-- Verify that the ~build~ directory exists after running ~npm run build~
-
-* Performance Considerations
-
-- QR code generation is generally fast, but consider caching results for repeated content
-- Be mindful of memory usage when handling large images
+# Format code
+make format
+#+end_src
 
 * Continuous Integration
+#+begin_src bash
+# Run all checks (lint, format, typecheck, test)
+make ci
+#+end_src
 
-- CI runs on all pull requests
-- Tests must pass before merging
-- Code coverage should be maintained or improved
+* Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run ~make ci~ to ensure all checks pass
+5. Submit a pull request
 
-* Additional Resources
-
-- [[https://modelcontextprotocol.io][MCP Documentation]]
-- [[https://github.com/modelcontextprotocol/typescript-sdk][MCP TypeScript SDK]]
-- [[https://fukuchi.org/works/qrencode/][QRencode Documentation]]
+* Troubleshooting
+- Ensure you're using Node.js 18.0.0 or higher
+- Install ~qrencode~ utility for your system
+- Run ~make initialize~ if you encounter dependency issues
+- Check ~make setup~ for environment verification

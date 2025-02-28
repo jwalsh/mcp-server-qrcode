@@ -1,11 +1,13 @@
 #!/bin/bash
-# Quick start script for QR Code MCP Server - bypasses TypeScript compilation
+set -e
 
-echo "Installing dependencies..."
-npm install @modelcontextprotocol/sdk commander
+echo "Quick starting the application..."
 
-echo "Making scripts executable..."
-chmod +x direct-run.js
+# Ensure dependencies are installed
+npm install
 
-echo "Starting QR Code MCP Server..."
-node direct-run.js
+# Build the project
+npm run build
+
+# Start the server
+npm start
