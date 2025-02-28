@@ -1,0 +1,25 @@
+#+TITLE: Changelog
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [[https://keepachangelog.com/en/1.0.0/][Keep a Changelog]],
+and this project adheres to [[https://semver.org/spec/v2.0.0.html][Semantic Versioning]].
+
+* [Unreleased]
+
+** Added
+- Initial implementation of QR code generation MCP server
+- Support for PNG and UTF8 output formats
+- Configurable error correction levels and sizes
+- Command-line interface
+- Documentation in Org Mode format
+
+* [0.1.0] - 2025-02-28
+
+** Added
+- Initial project setup
+- QR code generation functionality
+- Support for MCP Tool API
+- Basic documentation

@@ -1,0 +1,125 @@
+#+TITLE: Style Guide
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+* Code Style Guide
+
+This document outlines the coding standards and style guidelines for the QR Code MCP Server project.
+
+* General Principles
+
+- Write clean, readable, and maintainable code
+- Follow the principle of least surprise
+- Be consistent with the existing codebase
+- Document your code appropriately
+- Keep functions small and focused
+
+* TypeScript Style
+
+** Naming Conventions
+
+- Use ~camelCase~ for variable and function names
+- Use ~PascalCase~ for class, interface, type, and enum names
+- Use ~UPPER_SNAKE_CASE~ for constants and enum values
+- Use descriptive names that convey meaning
+
+** Formatting
+
+- Use 2 spaces for indentation
+- Use spaces around operators
+- Use semicolons at the end of statements
+- Keep line length to a maximum of 100 characters
+- Add a space after control statements (~if~, ~for~, ~while~, etc.)
+- Add spaces inside curly braces for objects and blocks
+
+** TypeScript Features
+
+- Use explicit types for function parameters and return values
+- Prefer interfaces over type aliases for object types
+- Use type guards to narrow types when necessary
+- Use optional chaining (~?.~) and nullish coalescing (~??~) when appropriate
+- Prefer ~const~ over ~let~ and avoid ~var~
+- Use async/await instead of raw promises where appropriate
+
+** File Organization
+
+- Group related functionality in the same file
+- Keep files under 300 lines when possible
+- Use consistent export patterns
+- Place imports at the top of the file, grouped by:
+  1. External libraries
+  2. MCP SDK imports
+  3. Project imports
+  4. Node.js standard library
+
+* Documentation
+
+** Comments
+
+- Use JSDoc for all public functions and classes
+- Add comments for complex or non-obvious code
+- Use TODO comments for incomplete code (format: ~// TODO: description~)
+- Keep comments up to date with code changes
+
+** JSDoc Format
+
+#+begin_src typescript
+/**
+ * Brief description of what the function does.
+ *
+ * @param {Type} paramName - Description of parameter
+ * @returns {ReturnType} Description of return value
+ * @throws {ErrorType} Description of when this error is thrown
+ * @example
+ * // Example usage
+ * const result = someFunction('example');
+ */
+function someFunction(paramName: Type): ReturnType {
+  // Implementation
+}
+#+end_src
+
+* Testing
+
+- Write tests for all public functionality
+- Name tests descriptively
+- Structure tests with arrange-act-assert pattern
+- Use meaningful assertions
+
+* Git Workflow
+
+** Branching
+
+- Use feature branches for new features
+- Use bugfix branches for bug fixes
+- Use release branches for release preparation
+
+** Commit Messages
+
+- Use the imperative mood ("Add feature" not "Added feature")
+- Start with a type prefix:
+  - ~feat:~ for new features
+  - ~fix:~ for bug fixes
+  - ~docs:~ for documentation changes
+  - ~style:~ for formatting changes
+  - ~refactor:~ for code refactoring
+  - ~test:~ for adding or modifying tests
+  - ~chore:~ for maintenance tasks
+- Keep the first line under 72 characters
+- Add details in the commit body if necessary
+
+Example:
+#+begin_example
+feat: add PNG format support for QR codes
+
+- Add PNG generation using qrencode utility
+- Convert PNG to base64 for response
+- Add format parameter to control output type
+#+end_example
+
+* Tools and Enforcement
+
+- ESLint for static code analysis
+- Prettier for code formatting
+- TypeScript strict mode
+- Automated test running in CI

@@ -1,0 +1,112 @@
+#+TITLE: Developer Guide
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+* Getting Started
+
+This document provides guidance for developers working on the QR Code MCP Server project.
+
+* Development Environment Setup
+
+** Prerequisites
+
+- Node.js (v18.0.0 or higher)
+- npm (comes with Node.js)
+- ~qrencode~ command-line utility
+- Git
+- A text editor/IDE of your choice (e.g., Emacs, VS Code)
+
+** Initial Setup
+
+#+begin_src bash
+# Clone the repository
+git clone https://github.com/[your-username]/mcp-server-qrcode.git
+cd mcp-server-qrcode
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+#+end_src
+
+** Running in Development Mode
+
+#+begin_src bash
+npm run dev
+#+end_src
+
+This uses ts-node to run the TypeScript code directly without requiring a build step.
+
+* Project Structure
+
+- ~src/~: Source code
+  - ~index.ts~: Main server implementation
+  - ~cli.ts~: Command-line interface
+- ~build/~: Compiled JavaScript (generated)
+- ~tests/~: Test files
+
+* Coding Standards
+
+** TypeScript
+
+- Use explicit types where beneficial for readability
+- Follow the existing code style (enforced by ESLint and Prettier)
+- Write JSDoc comments for public functions
+
+** Testing
+
+- Write unit tests for new functionality
+- Update existing tests when changing functionality
+- Run tests with ~npm test~
+
+* Pull Request Process
+
+1. Create a branch for your changes
+2. Make your changes and commit them
+3. Push your branch to your fork
+4. Create a pull request
+5. Wait for review
+
+* Release Process
+
+1. Update version number in ~package.json~
+2. Update CHANGELOG.org
+3. Commit changes
+4. Create a tag for the new version
+5. Push to main branch and push tags
+
+* Working with MCP
+
+For details on the Model Context Protocol (MCP) specification, refer to the [[https://modelcontextprotocol.io][official documentation]].
+
+* Debugging Tips
+
+** Debugging the Server
+
+- Enable verbose logging with ~npm start -- -v~
+- Add debug statements with ~console.debug~
+- Use the MCP Inspector for testing: ~mcp-inspector -- node build/cli.js~
+
+** Common Issues
+
+- Ensure ~qrencode~ is properly installed and in your PATH
+- Check that you're using a compatible version of Node.js
+- Verify that the ~build~ directory exists after running ~npm run build~
+
+* Performance Considerations
+
+- QR code generation is generally fast, but consider caching results for repeated content
+- Be mindful of memory usage when handling large images
+
+* Continuous Integration
+
+- CI runs on all pull requests
+- Tests must pass before merging
+- Code coverage should be maintained or improved
+
+* Additional Resources
+
+- [[https://modelcontextprotocol.io][MCP Documentation]]
+- [[https://github.com/modelcontextprotocol/typescript-sdk][MCP TypeScript SDK]]
+- [[https://fukuchi.org/works/qrencode/][QRencode Documentation]]

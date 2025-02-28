@@ -1,0 +1,102 @@
+#+TITLE: Contributing Guide
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+* Introduction
+
+Thank you for considering contributing to the QR Code MCP Server project. This document provides guidelines and information for contributors.
+
+* Code of Conduct
+
+This project adheres to a code of conduct. By participating, you are expected to uphold this code.
+
+* How Can I Contribute?
+
+** Reporting Bugs
+
+- Check if the bug has already been reported
+- Use the bug report template
+- Include as much detail as possible
+- Include steps to reproduce
+
+** Suggesting Features
+
+- Check if the feature has already been suggested
+- Use the feature request template
+- Describe the feature and its benefits
+- Be open to discussion and refinement
+
+** Code Contributions
+
+1. Fork the repository
+2. Create a branch for your changes
+3. Make your changes
+4. Run tests
+5. Submit a pull request
+
+* Development Process
+
+** Setup
+
+See the [[file:DEVELOPERS.org][Developer Guide]] for setup instructions.
+
+** Workflow
+
+1. Pick an issue to work on
+2. Comment on the issue to claim it
+3. Fork and clone the repository
+4. Create a branch
+5. Make your changes
+6. Run tests
+7. Push your changes
+8. Create a pull request
+
+** Pull Request Guidelines
+
+- Follow the pull request template
+- Link to any relevant issues
+- Ensure all tests pass
+- Include documentation updates if relevant
+- Be responsive to feedback
+
+** Commit Messages
+
+- Use the present tense ("Add feature" not "Added feature")
+- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
+- Reference issues and pull requests when relevant
+- Consider starting with a type:
+  - ~feat:~ for new features
+  - ~fix:~ for bug fixes
+  - ~docs:~ for documentation changes
+  - ~style:~ for formatting changes
+  - ~refactor:~ for code refactoring
+  - ~test:~ for adding or modifying tests
+  - ~chore:~ for maintenance tasks
+
+* Style Guide
+
+- Follow the existing code style
+- Use ESLint and Prettier
+- Write clear, descriptive comments
+- Document public APIs with JSDoc
+
+* Testing
+
+- Write tests for new features
+- Ensure all tests pass before submitting a pull request
+- Aim for good code coverage
+
+* Documentation
+
+- Update documentation when changing functionality
+- Keep README.org up to date
+- Add comments to complex code sections
+
+* Community
+
+- Be respectful and considerate
+- Help others when you can
+- Welcome newcomers
+- Give constructive feedback
+
+Thank you for your contributions!

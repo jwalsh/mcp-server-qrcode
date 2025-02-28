@@ -1,0 +1,145 @@
+#+TITLE: QR Code MCP Server
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+A [[https://modelcontextprotocol.io][Model Context Protocol (MCP)]] server for generating QR codes.
+
+* Overview
+
+This MCP server provides a tool for generating QR codes from text content. It uses the =qrencode= command-line utility to generate QR codes in PNG or UTF8 format.
+
+* Prerequisites
+
+- Node.js >= 18.0.0
+- =qrencode= utility installed on your system
+  - MacOS: ~brew install qrencode~
+  - Linux (Debian/Ubuntu): ~apt-get install qrencode~
+  - Linux (Red Hat/Fedora): ~dnf install qrencode~
+
+* Installation
+
+#+begin_src bash
+# Clone the repository
+git clone https://github.com/yourusername/mcp-server-qrcode.git
+cd mcp-server-qrcode
+
+# Install dependencies
+npm install
+
+# Build the server
+npm run build
+#+end_src
+
+* Usage
+
+** Running the server
+
+#+begin_src bash
+# Start the server
+npm start
+
+# With verbose logging
+npm start -- -v
+#+end_src
+
+The server will start and listen for MCP requests over stdin/stdout.
+
+** Using with MCP clients
+
+This server can be used with any MCP-compatible client. Here's an example of how to use it with the MCP Inspector:
+
+#+begin_src bash
+mcp-inspector -- node build/cli.js
+#+end_src
+
+* Available Tools
+
+** generate-qrcode
+
+Generates a QR code from text content.
+
+*** Parameters:
+
+- =content= (string, required): The text content to encode in the QR code
+- =errorCorrectionLevel= (string, optional, default: "M"): Error correction level
+  - "L": 7% error correction
+  - "M": 15% error correction
+  - "Q": 25% error correction
+  - "H": 30% error correction
+- =size= (number, optional, default: 3): Size of the QR code (1-10)
+- =format= (string, optional, default: "png"): Output format
+  - "png": Returns the QR code as a PNG image
+  - "utf8": Returns the QR code as ASCII art
+
+*** Example Request for PNG Format:
+
+#+begin_src json
+{
+  "name": "generate-qrcode",
+  "arguments": {
+    "content": "https://example.com",
+    "errorCorrectionLevel": "H",
+    "size": 4,
+    "format": "png"
+  }
+}
+#+end_src
+
+*** Example Request for UTF8 Format:
+
+#+begin_src json
+{
+  "name": "generate-qrcode",
+  "arguments": {
+    "content": "https://example.com",
+    "format": "utf8"
+  }
+}
+#+end_src
+
+*** Example UTF8 Response:
+
+#+begin_example
+QR Code for "https://example.com":
+
+████████████████    ████  ████████████████
+██          ██  ██    ██  ██          ██
+██  ██████  ██  ██████    ██  ██████  ██
+██  ██████  ██    ██  ██  ██  ██████  ██
+██  ██████  ██  ████  ██  ██  ██████  ██
+██          ██    ██████  ██          ██
+████████████████  ██  ██  ████████████████
+                  ██  ██                  
+██████  ██    ██████  ██    ██    ██████  
+████  ████████████████████████████    ████
+██  ██████    ████  ██  ██    ██████  ████
+██████      ██    ██████  ██  ██  ██  ████
+██  ████████  ██  ██  ██    ██████████    
+                  ██████      ██    ██  ██
+████████████████  ██  ████    ██  ██  ████
+██          ██  ████  ████████████████████
+██  ██████  ██  ██      ████  ██      ████
+██  ██████  ██      ██      ██████  ██  ██
+██  ██████  ██        ██  ████████    ████
+██          ██    ██    ██  ██  ████  ████
+████████████████  ██████  ██████████  ████
+#+end_example
+
+* Development
+
+** Project Structure
+
+- =src/index.ts=: Core MCP server implementation
+- =src/cli.ts=: Command-line interface for the server
+
+** Available Scripts
+
+- =npm run build=: Build the TypeScript code
+- =npm start=: Start the server
+- =npm run dev=: Run the server in development mode using ts-node
+- =npm test=: Run unit tests
+- =npm run lint=: Run ESLint
+
+* License
+
+MIT

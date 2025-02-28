@@ -1,0 +1,70 @@
+#+TITLE: Security Policy
+#+AUTHOR: Jason Walsh
+#+EMAIL: j@wal.sh
+
+* Security Policy
+
+** Supported Versions
+
+Currently, the following versions of QR Code MCP Server are supported for security updates:
+
+| Version | Supported          |
+|---------+-------------------|
+| 0.1.x   | :white_check_mark: |
+
+** Reporting a Vulnerability
+
+The security of this project is taken seriously. We appreciate your efforts to responsibly disclose your findings.
+
+To report a security vulnerability, please follow these steps:
+
+1. *DO NOT* disclose the vulnerability publicly
+2. Send an email to security@example.com with:
+   - A description of the vulnerability
+   - Steps to reproduce
+   - Potential impact
+   - Any suggested mitigations if known
+3. Allow time for the vulnerability to be addressed before any public disclosure
+
+You should receive a response within 48 hours acknowledging receipt of your report.
+
+** Expectations
+
+When reporting a vulnerability:
+
+- Provide detailed reports with reproducible steps
+- Include the version of the project where the vulnerability was found
+- Include any relevant screenshots or supporting materials
+
+** Disclosure Policy
+
+- The vulnerability will be confirmed within 48 hours of submission
+- You'll receive updates on the progress of the fix
+- A public disclosure will be coordinated with you after the fix has been released
+
+** Security Practices
+
+This project follows these security practices:
+
+- Regular dependency updates
+- Code reviews for all changes
+- Minimal use of external dependencies
+- Security-focused code reviews
+
+** Known Security Gaps and Future Enhancements
+
+- Command injection protection for the qrencode utility
+- Input validation and sanitization
+- Rate limiting for QR code generation requests
+- Improved error handling
+
+** Security Considerations for Users
+
+When using this MCP server, consider:
+
+- Running the server in a controlled environment
+- Not exposing the server directly to untrusted networks
+- Monitoring resource usage
+- Validating input before passing to the QR code generator
+
+Thank you for helping keep this project secure!
