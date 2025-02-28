@@ -23,18 +23,18 @@ server.tool(
       .describe("Size of the QR code (1-10)")
       .optional()
       .default(3),
-    format: z.enum(["png", "utf8"])
-      .describe("Output format for the QR code")
+    format: z.enum(["image", "text"])
+      .describe("Output format: 'image' for PNG QR code, 'text' for terminal-friendly output")
       .optional()
-      .default("png")
+      .default("image")
   },
   async ({ content, errorCorrectionLevel, size, format }) => {
     try {
       // Convert size from 1-10 scale to pixel size
       const pixelSize = size * 100;
       
-      if (format === "utf8") {
-        // Generate QR code in UTF8 format
+      if (format === "text") {
+        // Generate QR code in UTF8/terminal format
         const result = await generateQRCode({
           content,
           size: pixelSize,
@@ -43,7 +43,10 @@ server.tool(
         });
         
         return {
-          content: [{ type: "text", text: `QR Code for "${content}":\n\n${result.data}` }]
+          content: [{ 
+            type: "text", 
+            text: `QR Code for "${content}":\n\n${result.data}` 
+          }]
         };
       } else {
         // Generate QR code as PNG and return as base64
@@ -54,6 +57,12 @@ server.tool(
           format: 'base64'
         });
         
+        // Ensure we're sending clean base64 data
+        // Remove any data URL prefixes if present
+        const imageData = result.data.startsWith('data:') 
+          ? result.data.split(',')[1] 
+          : result.data;
+        
         return {
           content: [
             { 
@@ -62,7 +71,7 @@ server.tool(
             },
             {
               type: "image",
-              data: result.data,
+              data: imageData,
               mimeType: "image/png"
             }
           ]
