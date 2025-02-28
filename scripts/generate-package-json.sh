@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+jq '{
+		name: .name,
+		version: .version,
+		description: .description,
+		main: "index.js",
+		type: "module",
+		bin: .bin,
+		dependencies: .dependencies,
+		engines: .engines,
+		publishConfig: .publishConfig,
+		keywords: .keywords,
+		author: .author,
+		license: .license
+	}' $1	

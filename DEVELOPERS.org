@@ -65,11 +65,32 @@ npm start -- -v
 The server will start and listen for MCP requests over stdin/stdout.
 
 * Using with MCP Clients
+
+** Claude Desktop 
+
+#+begin_src json
+  {
+    "mcpServers": {
+      "qrcode": {
+        "args": [
+          "$HOME/projects/mcp-server-qrcode/build/cli.js"
+        ],
+        "command": "node"
+      }
+    }
+  }
+
+#+end_src
+
+**  MCP Inspector
+
 This server can be used with any MCP-compatible client. Here's an example of how to use it with the MCP Inspector:
 
 #+begin_src bash
 mcp-inspector -- node build/cli.js
 #+end_src
+
+
 
 * Testing
 #+begin_src bash
