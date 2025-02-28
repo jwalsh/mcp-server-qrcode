@@ -23,16 +23,6 @@ MAPPINGS=(
     "84b8c9d:docs: update documentation, prepare for initial publication"
     "eab4b0c:chore: remove unused commit.sh script"
     "b244d35:feat: initial QR Code MCP Server implementation"
-    
-    # Include both short and long hashes for complete coverage
-    "990c9de20c185d1087b0452f7e59e1c23b5af914:chore: bump version to 0.2.2"
-    "7c62a98ba51277ce5b290c6becf00f4b747239f7:chore: bump version to 0.2.1"
-    "b4f6396cdb35ad8f534f5643f8e5ede689bd4c22:refactor: consolidate build and publish process"
-    "30acb91333708689d4df0a50afc30d218086ff37:feat: implement release management with changelog generation"
-    "68f2a45bfaa8a798a90812ecef813d049c5916b9:chore: bump version to 0.2.0 and add publish check"
-    "53998b7cab8476abf8debacd1fae7b85379a5fb2:docs: update documentation, prepare for initial publication"
-    "eab4b0c5f21c5c5634e8b4cec6f851e28ba0f9a9:chore: remove unused commit.sh script"
-    "b244d35d74a61c119a1084b94901525d89eb3abe:feat: initial QR Code MCP Server implementation"
 )
 
 # Default to dry run
