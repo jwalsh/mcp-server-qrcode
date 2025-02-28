@@ -36,6 +36,14 @@
 - Strict Node.js version requirement (18.0.0+)
 
 ## Documentation Strategy
-- Use org-mode for all developer documentation
+- IMPORTANT: Use org-mode ONLY for ALL documentation
+- Do NOT update or use README.md - use README.org instead
 - Keep README.org high-level and usage-focused
 - Detailed setup in DEVELOPERS.org
+- Use CONTRIBUTING.org for contribution guidelines
+- All documentation uses .org extension (not .md)
+
+## CLI Usage
+- Server mode: Run `node build/cli.js` to start MCP server
+- Pipe input: `echo "content" | node build/cli.js` to generate QR code directly from stdin
+- Direct CLI processing supports terminal-friendly output format

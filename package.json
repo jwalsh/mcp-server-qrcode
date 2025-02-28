@@ -2,10 +2,10 @@
   "name": "@jwalsh/mcp-server-qrcode",
   "version": "0.2.4",
   "description": "Model Context Protocol server for generating QR codes",
-  "main": "index.js",
+  "main": "build/index.js",
   "type": "module",
   "bin": {
-    "mcp-server-qrcode": "cli.js"
+    "mcp-server-qrcode": "build/main.js"
   },
   "files": [
     "build",
@@ -14,8 +14,9 @@
   ],
   "scripts": {
     "build": "tsc",
-    "start": "node cli.js",
+    "start": "node build/main.js",
     "dev": "ts-node --esm src/cli.ts",
+    "cli": "node build/cli.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",

@@ -38,7 +38,7 @@ inspector: ## MCP Inspector
 	npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
 
 inspector-dev: build/index.js ## MCP Inspector: development 
-	npx @modelcontextprotocol/inspector node build/index.js
+	npx @modelcontextprotocol/inspector node build/direct-server.js
 
 cli: ## Validate CLI
 	node build/cli.js $NAME

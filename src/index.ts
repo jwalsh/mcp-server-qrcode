@@ -1,13 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { readFile } from 'fs/promises';
-import { tmpdir } from 'os';
-import { join } from 'path';
-import { randomUUID } from 'crypto';
-
-const execAsync = promisify(exec);
+import { generateQRCode } from './qrcode.js';
 
 // Create an MCP server
 const server = new McpServer({
@@ -37,37 +30,29 @@ server.tool(
   },
   async ({ content, errorCorrectionLevel, size, format }) => {
     try {
-      // Construct qrencode command with options
-      const ecOption = `-l ${errorCorrectionLevel}`;
-      const sizeOption = `-s ${size}`;
+      // Convert size from 1-10 scale to pixel size
+      const pixelSize = size * 100;
       
       if (format === "utf8") {
-        // Generate QR code in UTF8 format directly to stdout
-        const { stdout, stderr } = await execAsync(
-          `qrencode -o - -t UTF8 ${ecOption} ${sizeOption} '${content.replace(/'/g, "'\\''")}'`
-        );
-        
-        if (stderr) {
-          return {
-            content: [{ type: "text", text: `Error: ${stderr}` }],
-            isError: true
-          };
-        }
+        // Generate QR code in UTF8 format
+        const result = await generateQRCode({
+          content,
+          size: pixelSize,
+          errorCorrectionLevel,
+          format: 'terminal'
+        });
         
         return {
-          content: [{ type: "text", text: `QR Code for "${content}":\n\n${stdout}` }]
+          content: [{ type: "text", text: `QR Code for "${content}":\n\n${result.data}` }]
         };
       } else {
         // Generate QR code as PNG and return as base64
-        const tempFilePath = join(tmpdir(), `qrcode-${randomUUID()}.png`);
-        
-        await execAsync(
-          `qrencode -o "${tempFilePath}" ${ecOption} ${sizeOption} '${content.replace(/'/g, "'\\''")}'`
-        );
-        
-        // Read the file as buffer and encode as base64
-        const imageBuffer = await readFile(tempFilePath);
-        const base64Image = imageBuffer.toString('base64');
+        const result = await generateQRCode({
+          content,
+          size: pixelSize,
+          errorCorrectionLevel,
+          format: 'base64'
+        });
         
         return {
           content: [
@@ -77,7 +62,7 @@ server.tool(
             },
             {
               type: "image",
-              data: base64Image,
+              data: result.data,
               mimeType: "image/png"
             }
           ]
