@@ -1,6 +1,6 @@
 {
-  "name": "mcp-server-qrcode",
-  "version": "0.1.0",
+  "name": "@jwalsh/mcp-server-qrcode",
+  "version": "0.2.0",
   "description": "Model Context Protocol server for generating QR codes",
   "main": "build/index.js",
   "type": "module",
@@ -27,7 +27,8 @@
     "typecheck": "tsc --noEmit",
     "prepare": "npm run build",
     "ci": "npm run lint && npm run format:check && npm run typecheck && npm run test:ci",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "check-publish": "npm pack && tar -xvzf jwalsh-mcp-server-qrcode-*.tgz && ls -R package && rm -rf package && rm jwalsh-mcp-server-qrcode-*.tgz"
   },
   "keywords": [
     "mcp",
@@ -60,5 +61,8 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
