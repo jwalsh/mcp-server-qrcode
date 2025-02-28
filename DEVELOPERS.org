@@ -198,12 +198,17 @@ This server can be used with any MCP-compatible client. Here's how to use it wit
 #+begin_src bash
 # For MCP Inspector, use the main.js file
 mcp-inspector -- node build/main.js
+
+# Or use the Makefile target
+make inspector-dev
 #+end_src
 
 For the MCP Inspector UI, use these settings:
 - Transport Type: STDIO
 - Command: node
 - Arguments: build/main.js
+
+Important: Always use build/main.js as the entry point for the MCP server when using the inspector.
 
 ** Command Line Piping
 
