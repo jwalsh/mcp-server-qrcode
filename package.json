@@ -1,6 +1,6 @@
 {
   "name": "@jwalsh/mcp-server-qrcode",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Model Context Protocol server for generating QR codes",
   "main": "build/index.js",
   "type": "module",
