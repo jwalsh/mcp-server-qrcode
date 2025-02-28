@@ -18,7 +18,7 @@ if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
 fi
 
 # Update version in package.json
-npm version "$BUMP_TYPE" -m "chore: bump version to %s"
+npm version "$BUMP_TYPE" --no-gpg-sign -m "chore: bump version to %s"
 
 # Generate changelog
 npx conventional-changelog -p angular -i CHANGELOG.org -s
