@@ -2,6 +2,25 @@
   "name": "@jwalsh/mcp-server-qrcode",
   "version": "1.0.2",
   "description": "Model Context Protocol server for generating QR codes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jwalsh/mcp-server-qrcode.git"
+  },
+  "homepage": "https://github.com/jwalsh/mcp-server-qrcode",
+  "bugs": "https://github.com/jwalsh/mcp-server-qrcode/issues",
+  "readme": "README.org",
+  "maintainers": [
+    {
+      "name": "Jason Walsh",
+      "email": "j@wal.sh",
+      "url": "https://wal.sh",
+      "github": "https://github.com/jwalsh"
+    },
+    {
+      "name": "Aidan Pace",
+      "github": "https://github.com/aygp-dr"
+    }
+  ],
   "main": "build/main.js",
   "type": "module",
   "bin": {
@@ -72,5 +91,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "private": false
 }
