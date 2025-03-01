@@ -1,5 +1,4 @@
 import { generateQRCode, validateQRCodeInput, QRCodeOptions } from '../qrcode';
-import mcpServer from '../index';
 
 describe('QR Code Generator', () => {
   describe('generateQRCode', () => {
@@ -67,10 +66,10 @@ describe('QR Code Generator', () => {
       it('should generate a sample QR code', async () => {
         // Test direct generation of sample QR code
         const result = await generateQRCode({
-          content: "https://github.com/jwalsh/mcp-server-qrcode",
+          content: 'https://github.com/jwalsh/mcp-server-qrcode',
           size: 200,
           errorCorrectionLevel: 'M',
-          format: 'base64'
+          format: 'base64',
         });
         
         expect(result).toBeTruthy();
@@ -89,7 +88,7 @@ describe('QR Code Generator', () => {
           content: testContent,
           size: 200, // Default size
           errorCorrectionLevel: 'M', // Default level
-          format: 'base64'
+          format: 'base64',
         });
         
         expect(result).toBeTruthy();
@@ -108,7 +107,7 @@ describe('QR Code Generator', () => {
           content: testContent,
           size: testSize,
           errorCorrectionLevel: testLevel,
-          format: 'base64'
+          format: 'base64',
         });
         
         expect(result).toBeTruthy();
@@ -125,7 +124,7 @@ describe('QR Code Generator', () => {
           content: originalContent,
           size: 200,
           errorCorrectionLevel: 'M',
-          format: 'base64'
+          format: 'base64',
         });
         
         expect(result).toBeTruthy();

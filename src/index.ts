@@ -87,5 +87,161 @@ server.tool(
   }
 );
 
+// Register resource capabilities on the server
+server.server.registerCapabilities({
+  resources: {
+    root: "qrcode://",
+    get: true,
+    list: true
+  }
+});
+
+// Set up resource handlers manually
+const resourcesListRequestSchema = z.object({
+  method: z.literal("resources/list"),
+  params: z.object({})
+});
+
+server.server.setRequestHandler(resourcesListRequestSchema, async () => {
+  // Return a list of available QR code resources
+  return {
+    resources: [
+      {
+        uri: "qrcode://sample",
+        name: "Sample QR Code",
+        description: "A sample QR code that links to the project repository"
+      },
+      {
+        uri: "qrcode://hello-world",
+        name: "Hello World",
+        description: "A simple Hello World QR code example"
+      }
+    ]
+  };
+});
+
+// Add resource retrieval method
+const resourcesGetRequestSchema = z.object({
+  method: z.literal("resources/get"),
+  params: z.object({
+    uri: z.string().describe("The resource URI to retrieve")
+  })
+});
+
+server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
+  const uri = request.params.uri;
+  try {
+    // Validate URI format
+    if (!uri.startsWith('qrcode://')) {
+      throw new Error('Resource URI must start with qrcode://');
+    }
+
+    // Determine resource type and parameters
+    let content = '';
+    let size = 300;
+    let errorCorrectionLevel: 'L' | 'M' | 'Q' | 'H' = 'M';
+
+    if (uri === 'qrcode://sample') {
+      // Sample QR code
+      const result = await generateQRCode({
+        content: "https://github.com/jwalsh/mcp-server-qrcode",
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: "Sample QR Code for MCP QR Code Server"
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    } else if (uri === 'qrcode://hello-world') {
+      // Hello World QR code
+      const result = await generateQRCode({
+        content: "Hello, World!",
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: "Hello World QR Code Example"
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    } else {
+      // Custom resource - Extract content and parameters from the URI
+      const contentMatch = uri.match(/^qrcode:\/\/(.+?)(?:\?|$)/);
+      content = contentMatch ? contentMatch[1] : '';
+      
+      if (!content) {
+        throw new Error('Content parameter is required');
+      }
+      
+      // Extract query parameters
+      const queryString = uri.includes('?') ? uri.split('?')[1] : '';
+      const queryParams = new URLSearchParams(queryString);
+      
+      // Parse size parameter if present
+      if (queryParams.has('size')) {
+        const sizeParam = parseInt(queryParams.get('size')!, 10);
+        if (!isNaN(sizeParam)) {
+          size = sizeParam;
+        }
+      }
+      
+      // Parse error correction level if present
+      const levelParam = queryParams.get('level');
+      if (levelParam && ['L', 'M', 'Q', 'H'].includes(levelParam)) {
+        errorCorrectionLevel = levelParam as 'L' | 'M' | 'Q' | 'H';
+      }
+      
+      // Generate QR code
+      const result = await generateQRCode({
+        content: decodeURIComponent(content),
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: `QR Code for "${decodeURIComponent(content)}"`
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return {
+      content: [{ type: "text", text: `Failed to retrieve resource: ${errorMessage}` }],
+      isError: true
+    };
+  }
+});
+
 // Export the server instance to be used with a transport
 export default server;
