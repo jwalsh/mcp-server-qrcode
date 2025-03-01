@@ -4,11 +4,6 @@
 Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP).
 
 * Installation
-#+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
-npm view @jwalsh/mcp-server-qrcode
-
-npm install -g @jwalsh/mcp-server-qrcode
-#+end_src
 
 * Quick Examples
 
@@ -32,59 +27,8 @@ Phone: 555-123-4567
 
 * Usage
 
-** MCP Server Usage (Primary Mode)
-#+begin_src bash :tangle generated/mcp-server-qrcode-test.sh :mkdirp yes
-# Install the MCP server globally
-npm install -g @jwalsh/mcp-server-qrcode
-
-# The server is now available for use with MCP clients
-# such as Claude Desktop or MCP Inspector
-#+end_src
-
-*** With Claude Desktop
-To use this QR code generator with Claude Desktop:
-
-1. Configure Claude Desktop to use the MCP server
-2. Use the "Generate QR Code" tool to create QR codes for:
-   - URLs
-   - Plain text
-   - Contact information
-   - Wi-Fi credentials
-
-*** With MCP Inspector
-For development and testing with MCP Inspector:
-
-#+begin_src bash
-# Install the MCP Inspector
-npm install -g @modelcontextprotocol/inspector
-
-# Run the inspector with the QR code server
-mcp-inspector -- mcp-server-qrcode
-#+end_src
-
-** Development & Testing
-For local development and testing, you can use additional CLI features:
-
-#+begin_src bash
-# Clone and set up the repository
-git clone https://github.com/jwalsh/mcp-server-qrcode.git
-cd mcp-server-qrcode
-npm install
-npm run build
-
-# Run MCP server for Inspector testing
-npm start
-
-# Test CLI features locally (development only)
-npm run cli -- -g "https://example.com"
-npm run cli -- -g "https://example.com" -s 300 -e H
-
-# Test stdin piping with the CLI (development only)
-echo "https://example.com" | npm run cli
-cat myfile.txt | npm run cli
-#+end_src
-
 ** Claude Desktop
+To use this QR code generator with Claude Desktop:
 
 #+begin_src json :tangle generated/claude_desktop_config.json :mkdirp yes
   {
@@ -100,12 +44,42 @@ cat myfile.txt | npm run cli
   }
 #+end_src
 
-1. Open Claude Desktop
-2. Use the integrated QR code generation feature
-3. Select content to generate QR code
+1. Configure Claude Desktop to use the MCP server
+2. Use the "Generate QR Code" tool to create QR codes for:
+   - URLs
+   - Plain text
+   - Contact information
+   - Wi-Fi credentials
 
+** MCP Inspector
+For development and testing with MCP Inspector:
 
+#+begin_src bash
+npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
 
+#+end_src
+
+** NPM
+
+#+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
+npm view @jwalsh/mcp-server-qrcode
+npm install -g @jwalsh/mcp-server-qrcode@latest
+echo '{"method":"tools/list","jsonrpc":"2.0","id":1,"params":{}}' | mcp-server-qrcode | jq -r '.result.tools[]|.name'
+
+#+end_src
+
+** Development & Testing
+For local development and testing, you can use additional CLI features:
+
+#+begin_src bash
+# Clone and set up the repository
+git clone https://github.com/jwalsh/mcp-server-qrcode.git
+cd mcp-server-qrcode
+npm install
+npm run build
+echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"test","format":"image"}},"id":2}' | node build/main.js | jq -r '.result.content[1].data' | base64 -d | imgcat
+
+#+end_src
 
 ** Emacs (mcp.el)
 
