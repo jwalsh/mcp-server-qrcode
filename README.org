@@ -50,46 +50,52 @@ To use this QR code generator with Claude Desktop:
 ** MCP Inspector
 For development and testing with MCP Inspector:
 
-#+begin_src bash
-npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
+#+begin_src bash :tangle generated/start-inspector.sh :mkdirp yes 
+  npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
 
 #+end_src
 
 ** NPM
 
 #+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
-npm view @jwalsh/mcp-server-qrcode
-npm install -g @jwalsh/mcp-server-qrcode@latest
-echo '{"method":"tools/list","jsonrpc":"2.0","id":1,"params":{}}' | mcp-server-qrcode | jq -r '.result.tools[]|.name'
+  npm view @jwalsh/mcp-server-qrcode
+  npm install -g @jwalsh/mcp-server-qrcode@latest
+  echo '{"method":"tools/list","params":{},"id":1,"jsonrpc":"2.0"}' | mcp-server-qrcode | jq -r '.result.tools[]|.name'
 
 #+end_src
+
+#+RESULTS:
+: generate-qrcode
 
 ** Development & Testing
 For local development and testing, you can use additional CLI features:
 
 #+begin_src bash
-# Clone and set up the repository
-git clone https://github.com/jwalsh/mcp-server-qrcode.git
-cd mcp-server-qrcode
-npm install
-npm run build
-echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"test","format":"image"}},"id":2}' | node build/main.js | jq -r '.result.content[1].data' | base64 -d | imgcat
+  # Clone and set up the repository
+  git clone https://github.com/jwalsh/mcp-server-qrcode.git
+  cd mcp-server-qrcode
+  npm install
+  npm run build
+  echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"test","format":"image"}},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq -r '.result.content[1].data' | base64 -d | imgcat
 
 #+end_src
+
+#+RESULTS:
 
 ** Emacs (mcp.el)
 
 #+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
-;; In Emacs with mcp.el loaded
-(mcp-connect-server "qrcode" 
-                    "npx" 
-                    '("-y" "@jwalsh/mcp-server-qrcode")
-                    :initial-callback
-                    (lambda (connection)
-                      (message "Connected to %s" (jsonrpc-name connection)))
-                    :tools-callback
-                    (lambda (connection tools)
-                      (message "Available tools: %s" tools)))
+  ;; In Emacs with mcp.el loaded
+  (mcp-connect-server
+   "qrcode" 
+   "npx" 
+   '("-y" "@jwalsh/mcp-server-qrcode")
+   :initial-callback
+   (lambda (connection)
+     (message "Connected to %s" (jsonrpc-name connection)))
+   :tools-callback
+   (lambda (connection tools)
+     (message "Available tools: %s" tools)))
 
 #+end_src
 
