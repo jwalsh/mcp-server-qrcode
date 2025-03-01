@@ -87,12 +87,32 @@ server.tool(
   }
 );
 
+// Define QR code templates
+const QR_TEMPLATES = {
+  WIFI: {
+    name: "WiFi",
+    description: "Generate a QR code to connect to WiFi",
+    template: "qrcode://wifi?ssid={ssid}&password={password}&encryption={encryption}"
+  },
+  CONTACT: {
+    name: "Contact",
+    description: "Generate a QR code with contact information",
+    template: "qrcode://contact?name={name}&phone={phone}&email={email}"
+  },
+  URL: {
+    name: "URL",
+    description: "Generate a QR code for a URL",
+    template: "qrcode://url?url={url}&size={size}&level={level}"
+  }
+};
+
 // Register resource capabilities on the server
 server.server.registerCapabilities({
   resources: {
     root: "qrcode://",
     get: true,
-    list: true
+    list: true,
+    template: true
   }
 });
 
@@ -115,6 +135,53 @@ server.server.setRequestHandler(resourcesListRequestSchema, async () => {
         uri: "qrcode://hello-world",
         name: "Hello World",
         description: "A simple Hello World QR code example"
+      }
+    ]
+  };
+});
+
+// Add template list handler
+const templatesListRequestSchema = z.object({
+  method: z.literal("resources/templates"),
+  params: z.object({})
+});
+
+server.server.setRequestHandler(templatesListRequestSchema, async () => {
+  // Return a list of available QR code templates
+  return {
+    templates: [
+      {
+        id: "wifi",
+        name: QR_TEMPLATES.WIFI.name,
+        description: QR_TEMPLATES.WIFI.description,
+        template: QR_TEMPLATES.WIFI.template,
+        variables: [
+          { name: "ssid", description: "WiFi network name", required: true },
+          { name: "password", description: "WiFi password", required: false },
+          { name: "encryption", description: "WiFi encryption type (WEP, WPA, WPA2, none)", required: false, defaultValue: "WPA" }
+        ]
+      },
+      {
+        id: "contact",
+        name: QR_TEMPLATES.CONTACT.name,
+        description: QR_TEMPLATES.CONTACT.description,
+        template: QR_TEMPLATES.CONTACT.template,
+        variables: [
+          { name: "name", description: "Contact name", required: true },
+          { name: "phone", description: "Phone number", required: false },
+          { name: "email", description: "Email address", required: false }
+        ]
+      },
+      {
+        id: "url",
+        name: QR_TEMPLATES.URL.name,
+        description: QR_TEMPLATES.URL.description,
+        template: QR_TEMPLATES.URL.template,
+        variables: [
+          { name: "url", description: "URL to encode", required: true },
+          { name: "size", description: "QR code size (100-1000)", required: false, defaultValue: "300" },
+          { name: "level", description: "Error correction level (L, M, Q, H)", required: false, defaultValue: "M" }
+        ]
       }
     ]
   };
@@ -177,6 +244,130 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
           { 
             type: "text", 
             text: "Hello World QR Code Example"
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    } else if (uri.startsWith('qrcode://wifi?')) {
+      // WiFi template
+      const queryString = uri.split('?')[1] || '';
+      const queryParams = new URLSearchParams(queryString);
+      
+      const ssid = queryParams.get('ssid');
+      if (!ssid) {
+        throw new Error('SSID is required for WiFi QR code');
+      }
+      
+      const password = queryParams.get('password') || '';
+      const encryption = queryParams.get('encryption')?.toUpperCase() || 'WPA';
+      
+      // Generate WiFi connection string in standard format
+      // Format: WIFI:T:<encryption>;S:<ssid>;P:<password>;;
+      const wifiContent = `WIFI:T:${encryption};S:${ssid};P:${password};;`;
+      
+      const result = await generateQRCode({
+        content: wifiContent,
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: `WiFi QR Code for "${ssid}"`
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    } else if (uri.startsWith('qrcode://contact?')) {
+      // Contact template
+      const queryString = uri.split('?')[1] || '';
+      const queryParams = new URLSearchParams(queryString);
+      
+      const name = queryParams.get('name');
+      if (!name) {
+        throw new Error('Name is required for contact QR code');
+      }
+      
+      const phone = queryParams.get('phone') || '';
+      const email = queryParams.get('email') || '';
+      
+      // Generate contact string in vCard format
+      const vcard = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        `FN:${name}`,
+        phone ? `TEL:${phone}` : '',
+        email ? `EMAIL:${email}` : '',
+        'END:VCARD'
+      ].filter(line => line).join('\n');
+      
+      const result = await generateQRCode({
+        content: vcard,
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: `Contact QR Code for "${name}"`
+          },
+          {
+            type: "image",
+            data: result.data,
+            mimeType: "image/png"
+          }
+        ]
+      };
+    } else if (uri.startsWith('qrcode://url?')) {
+      // URL template
+      const queryString = uri.split('?')[1] || '';
+      const queryParams = new URLSearchParams(queryString);
+      
+      const url = queryParams.get('url');
+      if (!url) {
+        throw new Error('URL is required for URL QR code');
+      }
+      
+      // Parse size parameter if present
+      if (queryParams.has('size')) {
+        const sizeParam = parseInt(queryParams.get('size')!, 10);
+        if (!isNaN(sizeParam)) {
+          size = sizeParam;
+        }
+      }
+      
+      // Parse error correction level if present
+      const levelParam = queryParams.get('level');
+      if (levelParam && ['L', 'M', 'Q', 'H'].includes(levelParam)) {
+        errorCorrectionLevel = levelParam as 'L' | 'M' | 'Q' | 'H';
+      }
+      
+      const result = await generateQRCode({
+        content: url,
+        size,
+        errorCorrectionLevel,
+        format: 'base64'
+      });
+      
+      return {
+        content: [
+          { 
+            type: "text", 
+            text: `URL QR Code for "${url}"`
           },
           {
             type: "image",
