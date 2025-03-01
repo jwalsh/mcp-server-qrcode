@@ -8,6 +8,15 @@ const server = new McpServer({
   version: "0.3.6"
 });
 
+// Register resource capabilities
+server.server.registerCapabilities({
+  resources: {
+    root: "qrcode://",
+    get: true,
+    list: true
+  }
+});
+
 // Add the QR code generation tool
 server.tool(
   "generate-qrcode",
@@ -87,36 +96,7 @@ server.tool(
   }
 );
 
-// Define QR code templates
-const QR_TEMPLATES = {
-  WIFI: {
-    name: "WiFi",
-    description: "Generate a QR code to connect to WiFi",
-    template: "qrcode://wifi?ssid={ssid}&password={password}&encryption={encryption}"
-  },
-  CONTACT: {
-    name: "Contact",
-    description: "Generate a QR code with contact information",
-    template: "qrcode://contact?name={name}&phone={phone}&email={email}"
-  },
-  URL: {
-    name: "URL",
-    description: "Generate a QR code for a URL",
-    template: "qrcode://url?url={url}&size={size}&level={level}"
-  }
-};
-
-// Register resource capabilities on the server
-server.server.registerCapabilities({
-  resources: {
-    root: "qrcode://",
-    get: true,
-    list: true,
-    template: true
-  }
-});
-
-// Set up resource handlers manually
+// Set up resource handlers manually to work with the MCP protocol
 const resourcesListRequestSchema = z.object({
   method: z.literal("resources/list"),
   params: z.object({})
@@ -135,53 +115,21 @@ server.server.setRequestHandler(resourcesListRequestSchema, async () => {
         uri: "qrcode://hello-world",
         name: "Hello World",
         description: "A simple Hello World QR code example"
-      }
-    ]
-  };
-});
-
-// Add template list handler
-const templatesListRequestSchema = z.object({
-  method: z.literal("resources/templates"),
-  params: z.object({})
-});
-
-server.server.setRequestHandler(templatesListRequestSchema, async () => {
-  // Return a list of available QR code templates
-  return {
-    templates: [
-      {
-        id: "wifi",
-        name: QR_TEMPLATES.WIFI.name,
-        description: QR_TEMPLATES.WIFI.description,
-        template: QR_TEMPLATES.WIFI.template,
-        variables: [
-          { name: "ssid", description: "WiFi network name", required: true },
-          { name: "password", description: "WiFi password", required: false },
-          { name: "encryption", description: "WiFi encryption type (WEP, WPA, WPA2, none)", required: false, defaultValue: "WPA" }
-        ]
       },
       {
-        id: "contact",
-        name: QR_TEMPLATES.CONTACT.name,
-        description: QR_TEMPLATES.CONTACT.description,
-        template: QR_TEMPLATES.CONTACT.template,
-        variables: [
-          { name: "name", description: "Contact name", required: true },
-          { name: "phone", description: "Phone number", required: false },
-          { name: "email", description: "Email address", required: false }
-        ]
+        uri: "qrcode://wifi?ssid=MyNetwork&password=password123&encryption=WPA",
+        name: "WiFi QR Code",
+        description: "Generate a QR code to connect to WiFi"
       },
       {
-        id: "url",
-        name: QR_TEMPLATES.URL.name,
-        description: QR_TEMPLATES.URL.description,
-        template: QR_TEMPLATES.URL.template,
-        variables: [
-          { name: "url", description: "URL to encode", required: true },
-          { name: "size", description: "QR code size (100-1000)", required: false, defaultValue: "300" },
-          { name: "level", description: "Error correction level (L, M, Q, H)", required: false, defaultValue: "M" }
-        ]
+        uri: "qrcode://contact?name=John%20Doe&phone=555-123-4567&email=john@example.com",
+        name: "Contact QR Code",
+        description: "Generate a QR code with contact information"
+      },
+      {
+        uri: "qrcode://url?url=https://anthropic.com",
+        name: "URL QR Code",
+        description: "Generate a QR code for a URL"
       }
     ]
   };
@@ -218,14 +166,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: "Sample QR Code for MCP QR Code Server"
+            text: "Sample QR Code for MCP QR Code Server",
+            uri: "qrcode://sample"
           },
           {
-            type: "image",
-            data: result.data,
+            uri: "qrcode://sample",
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -240,14 +188,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: "Hello World QR Code Example"
+            text: "Hello World QR Code Example",
+            uri: "qrcode://hello-world"
           },
           {
-            type: "image",
-            data: result.data,
+            uri: "qrcode://hello-world",
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -277,14 +225,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: `WiFi QR Code for "${ssid}"`
+            text: `WiFi QR Code for "${ssid}"`,
+            uri: uri
           },
           {
-            type: "image",
-            data: result.data,
+            uri: uri,
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -320,14 +268,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: `Contact QR Code for "${name}"`
+            text: `Contact QR Code for "${name}"`,
+            uri: uri
           },
           {
-            type: "image",
-            data: result.data,
+            uri: uri,
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -364,14 +312,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: `URL QR Code for "${url}"`
+            text: `URL QR Code for "${url}"`,
+            uri: uri
           },
           {
-            type: "image",
-            data: result.data,
+            uri: uri,
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -412,14 +360,14 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
       });
       
       return {
-        content: [
+        contents: [
           { 
-            type: "text", 
-            text: `QR Code for "${decodeURIComponent(content)}"`
+            text: `QR Code for "${decodeURIComponent(content)}"`,
+            uri: uri
           },
           {
-            type: "image",
-            data: result.data,
+            uri: uri,
+            blob: result.data,
             mimeType: "image/png"
           }
         ]
@@ -428,7 +376,7 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async (request) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return {
-      content: [{ type: "text", text: `Failed to retrieve resource: ${errorMessage}` }],
+      contents: [{ text: `Failed to retrieve resource: ${errorMessage}`, uri: uri }],
       isError: true
     };
   }
