@@ -1,17 +1,13 @@
 #+TITLE: MCP QR Code Server
-
 * Overview
 Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP).
 
-* Installation
-
 * Quick Examples
 
-** With Claude Desktop
-Ask Claude to generate a QR code for any content:
+Ask to generate a QR code for any content:
 
 #+begin_example
-Please generate a QR code for https://anthropic.com
+Please generate a QR code for https://example.com
 #+end_example
 
 #+begin_example
@@ -104,13 +100,6 @@ echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"generate-qrcode",
   - ~M~: Medium (15% of codewords can be restored)
   - ~Q~: Quartile (25% of codewords can be restored)
   - ~H~: High (30% of codewords can be restored)
-
-* Supported Input Types
-- URLs
-- Plain text
-- Contact information
-- Wi-Fi credentials
-- Email addresses
 
 * Developer Documentation
 For detailed setup, installation, and contribution guidelines, please refer to [[file:DEVELOPERS.org][DEVELOPERS.org]].
