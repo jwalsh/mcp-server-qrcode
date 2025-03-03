@@ -82,7 +82,14 @@ For local development and testing, you can use additional CLI features:
 
 #+RESULTS:
 
-** Emacs (mcp.el)
+* Examples 
+
+#+BEGIN_SRC python
+generate_qrcode("https://anthropic.com")
+#+END_SRC
+
+** Wi-Fi Network QR Code
+[[./static/wifi_qrcode.png]]
 
 #+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
   ;; In Emacs with mcp.el loaded
@@ -96,19 +103,33 @@ For local development and testing, you can use additional CLI features:
    :tools-callback
    (lambda (connection tools)
      (message "Available tools: %s" tools)))
-
 #+end_src
 
-* Configuration Options
-- ~--size~: Set the size of the QR code in pixels (default: 200)
-- ~--error-correction~: Set error correction level
-  - ~L~: Low (7% of codewords can be restored)
-  - ~M~: Medium (15% of codewords can be restored)
-  - ~Q~: Quartile (25% of codewords can be restored)
-  - ~H~: High (30% of codewords can be restored)
+Generates a QR code for Wi-Fi network access
+- Network: GuestWiFi
+- Password: Welcome123
+
+#+BEGIN_SRC python
+generate_qrcode("WIFI:S:GuestWiFi;T:WPA;P:Welcome123;;")
+#+END_SRC
+
+** Contact Information QR Code
+[[./static/contact_qrcode.png]]
+
+Generates a QR code with contact details
+- Name: John Doe
+- Email: john@example.com
+- Phone: 555-123-4567
+
+#+BEGIN_SRC python
+generate_qrcode("""BEGIN:VCARD
+N:Doe;John;;;
+FN:John Doe
+EMAIL:john@example.com
+TEL:555-123-4567
+END:VCARD""")
+#+END_SRC
 
 * Developer Documentation
 For detailed setup, installation, and contribution guidelines, please refer to [[file:DEVELOPERS.org][DEVELOPERS.org]].
 
-* License
-MIT License
