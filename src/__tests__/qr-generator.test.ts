@@ -5,7 +5,7 @@ describe('QR Code Generator', () => {
     it('should generate a QR code for a simple URL', async () => {
       const url = 'https://example.com';
       const result = await generateQRCode({ content: url, format: 'dataURL' });
-      
+
       expect(result).toBeTruthy();
       expect(result.data).toBeTruthy();
       expect(result.data.startsWith('data:image/png;base64,')).toBeTruthy();
@@ -15,7 +15,7 @@ describe('QR Code Generator', () => {
       const url = 'https://example.com';
       const options: QRCodeOptions = { content: url, size: 300, format: 'dataURL' };
       const result = await generateQRCode(options);
-      
+
       expect(result).toBeTruthy();
       expect(result.data).toBeTruthy();
     });
@@ -23,10 +23,10 @@ describe('QR Code Generator', () => {
     it('should generate a QR code with different error correction levels', async () => {
       const url = 'https://example.com';
       const levels: Array<'L' | 'M' | 'Q' | 'H'> = ['L', 'M', 'Q', 'H'];
-      
+
       for (const level of levels) {
-        const result = await generateQRCode({ 
-          content: url, 
+        const result = await generateQRCode({
+          content: url,
           errorCorrectionLevel: level,
           format: 'dataURL',
         });
@@ -40,11 +40,13 @@ describe('QR Code Generator', () => {
     });
 
     it('should throw an error for invalid size', async () => {
-      await expect(generateQRCode({ content: 'https://example.com', size: 50 }))
-        .rejects.toThrow('QR code size must be between 100 and 1000 pixels');
-      
-      await expect(generateQRCode({ content: 'https://example.com', size: 2000 }))
-        .rejects.toThrow('QR code size must be between 100 and 1000 pixels');
+      await expect(generateQRCode({ content: 'https://example.com', size: 50 })).rejects.toThrow(
+        'QR code size must be between 100 and 1000 pixels',
+      );
+
+      await expect(generateQRCode({ content: 'https://example.com', size: 2000 })).rejects.toThrow(
+        'QR code size must be between 100 and 1000 pixels',
+      );
     });
   });
 
@@ -71,7 +73,7 @@ describe('QR Code Generator', () => {
           errorCorrectionLevel: 'M',
           format: 'base64',
         });
-        
+
         expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(typeof result.data).toBe('string');
@@ -82,7 +84,7 @@ describe('QR Code Generator', () => {
     describe('Custom QR Code Resource', () => {
       it('should generate a custom QR code with default parameters', async () => {
         const testContent = 'https://example.com';
-        
+
         // Test direct generation equivalent to resource
         const result = await generateQRCode({
           content: testContent,
@@ -90,7 +92,7 @@ describe('QR Code Generator', () => {
           errorCorrectionLevel: 'M', // Default level
           format: 'base64',
         });
-        
+
         expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(typeof result.data).toBe('string');
@@ -101,7 +103,7 @@ describe('QR Code Generator', () => {
         const testContent = 'Custom QR Code';
         const testSize = 300;
         const testLevel = 'H';
-        
+
         // Test direct generation equivalent to resource with all parameters
         const result = await generateQRCode({
           content: testContent,
@@ -109,7 +111,7 @@ describe('QR Code Generator', () => {
           errorCorrectionLevel: testLevel,
           format: 'base64',
         });
-        
+
         expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(typeof result.data).toBe('string');
@@ -118,7 +120,7 @@ describe('QR Code Generator', () => {
 
       it('should handle special characters in content', async () => {
         const originalContent = 'Hello World & Special Characters: ?&=';
-        
+
         // Test direct generation with special characters
         const result = await generateQRCode({
           content: originalContent,
@@ -126,7 +128,7 @@ describe('QR Code Generator', () => {
           errorCorrectionLevel: 'M',
           format: 'base64',
         });
-        
+
         expect(result).toBeTruthy();
         expect(result.data).toBeTruthy();
         expect(typeof result.data).toBe('string');
