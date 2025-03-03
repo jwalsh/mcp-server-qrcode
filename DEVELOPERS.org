@@ -191,6 +191,76 @@ For more sophisticated MCP server examples and patterns, refer to these implemen
   }
 #+end_src
 
+For the published package, use:
+
+#+begin_src json
+  {
+    "mcpServers": {
+      "qrcode": {
+        "args": [
+          "-y",
+          "@jwalsh/mcp-server-qrcode"
+        ],
+        "command": "npx"
+      }
+    }
+  }
+#+end_src
+
+** Emacs with mcp.el
+
+The QR code server can be used with Emacs via the mcp.el package:
+
+#+begin_src elisp
+  ;; First install mcp.el: https://github.com/modelcontextprotocol/mcp.el
+  ;; Then configure and connect to the QR code server:
+  (mcp-connect-server
+   "qrcode" 
+   "npx" 
+   '("-y" "@jwalsh/mcp-server-qrcode")
+   :initial-callback
+   (lambda (connection)
+     (message "Connected to %s" (jsonrpc-name connection)))
+   :tools-callback
+   (lambda (connection tools)
+     (message "Available tools: %s" tools)))
+  
+  ;; Generate a QR code with text output
+  (mcp-call connection 
+            "generate-qrcode" 
+            '(:content "https://example.com" 
+              :format "text"))
+  
+  ;; Generate a QR code with image output
+  (mcp-call connection 
+            "generate-qrcode" 
+            '(:content "https://example.com" 
+              :format "image"))
+  
+  ;; Example function to display QR codes in Emacs
+  (defun qrcode-generate (content &optional format)
+    "Generate QR code for CONTENT with optional FORMAT (text or image)."
+    (interactive "sContent for QR code: ")
+    (let ((format (or format "text")))
+      (mcp-call mcp-qrcode-connection
+                "generate-qrcode"
+                (list :content content :format format)
+                (lambda (result)
+                  (with-current-buffer (get-buffer-create "*QR Code*")
+                    (erase-buffer)
+                    (insert (plist-get result :content))
+                    (display-buffer (current-buffer)))))))
+#+end_src
+
+For local development:
+
+#+begin_src elisp
+  (mcp-connect-server
+   "qrcode-dev" 
+   "node" 
+   '("$HOME/projects/mcp-server-qrcode/build/main.js"))
+#+end_src
+
 ** MCP Inspector
 
 This server can be used with any MCP-compatible client. Here's how to use it with the MCP Inspector:
