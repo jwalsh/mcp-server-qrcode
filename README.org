@@ -1,11 +1,88 @@
-#+TITLE: QR Code Generator Examples
+#+TITLE: MCP QR Code Server
+* Overview
+Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP).
 
 * Quick Examples
 
-** URL QR Code
-[[./static/anthropic_qrcode.png]]
+Ask to generate a QR code for any content:
 
-Generates a QR code for https://anthropic.com
+#+begin_example
+Please generate a QR code for https://example.com
+#+end_example
+
+#+begin_example
+Generate a QR code for the Wi-Fi network "GuestWiFi" with password "Welcome123"
+#+end_example
+
+#+begin_example
+Create a QR code for my contact information:
+Name: John Doe
+Email: john@example.com
+Phone: 555-123-4567
+#+end_example
+
+* Usage
+
+** Claude Desktop
+To use this QR code generator with Claude Desktop:
+
+#+begin_src json :tangle generated/claude_desktop_config.json :mkdirp yes
+  {
+    "mcpServers": {
+      "qrcode": {
+        "args": [
+          "-y",
+          "@jwalsh/mcp-server-qrcode"
+        ],
+        "command": "npx"
+      }
+    }
+  }
+#+end_src
+
+1. Configure Claude Desktop to use the MCP server
+2. Use the "Generate QR Code" tool to create QR codes for:
+   - URLs
+   - Plain text
+   - Contact information
+   - Wi-Fi credentials
+
+** MCP Inspector
+For development and testing with MCP Inspector:
+
+#+begin_src bash :tangle generated/start-inspector.sh :mkdirp yes 
+  npx -y @modelcontextprotocol/inspector npx -y @jwalsh/mcp-server-qrcode
+
+#+end_src
+
+** NPM
+
+#+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
+  npm view @jwalsh/mcp-server-qrcode
+  npm install -g @jwalsh/mcp-server-qrcode@latest
+  echo '{"method":"tools/list","params":{},"id":1,"jsonrpc":"2.0"}' | mcp-server-qrcode | jq -r '.result.tools[]|.name'
+
+#+end_src
+
+#+RESULTS:
+: generate-qrcode
+
+** Development & Testing
+For local development and testing, you can use additional CLI features:
+
+#+begin_src bash
+  # Clone and set up the repository
+  git clone https://github.com/jwalsh/mcp-server-qrcode.git
+  cd mcp-server-qrcode
+  npm install
+  npm run build
+  echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"test","format":"image"}},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq -r '.result.content[1].data' | base64 -d | imgcat
+
+#+end_src
+
+#+RESULTS:
+
+* Examples 
 
 #+BEGIN_SRC python
 generate_qrcode("https://anthropic.com")
@@ -13,6 +90,20 @@ generate_qrcode("https://anthropic.com")
 
 ** Wi-Fi Network QR Code
 [[./static/wifi_qrcode.png]]
+
+#+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
+  ;; In Emacs with mcp.el loaded
+  (mcp-connect-server
+   "qrcode" 
+   "npx" 
+   '("-y" "@jwalsh/mcp-server-qrcode")
+   :initial-callback
+   (lambda (connection)
+     (message "Connected to %s" (jsonrpc-name connection)))
+   :tools-callback
+   (lambda (connection tools)
+     (message "Available tools: %s" tools)))
+#+end_src
 
 Generates a QR code for Wi-Fi network access
 - Network: GuestWiFi
@@ -38,3 +129,7 @@ EMAIL:john@example.com
 TEL:555-123-4567
 END:VCARD""")
 #+END_SRC
+
+* Developer Documentation
+For detailed setup, installation, and contribution guidelines, please refer to [[file:DEVELOPERS.org][DEVELOPERS.org]].
+
