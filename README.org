@@ -1,207 +1,40 @@
-#+TITLE: MCP QR Code Server
-
-* Overview
-Generate QR codes seamlessly across multiple interfaces using the Model Context Protocol (MCP). Now with support for both MCP tools and resources.
-
-* Installation
-#+begin_src bash :tangle generated/mcp-server-qrcode-install.sh :mkdirp yes
-npm view @jwalsh/mcp-server-qrcode
-
-npm install -g @jwalsh/mcp-server-qrcode
-#+end_src
+#+TITLE: QR Code Generator Examples
 
 * Quick Examples
 
-** With Claude Desktop
-Ask Claude to generate a QR code for any content:
+** URL QR Code
+[[./static/anthropic_qrcode.png]]
 
-#+begin_example
-Please generate a QR code for https://anthropic.com
-#+end_example
+Generates a QR code for https://anthropic.com
 
-#+begin_example
-Generate a QR code for the Wi-Fi network "GuestWiFi" with password "Welcome123"
-#+end_example
+#+BEGIN_SRC python
+generate_qrcode("https://anthropic.com")
+#+END_SRC
 
-#+begin_example
-Create a QR code for my contact information:
-Name: John Doe
-Email: john@example.com
-Phone: 555-123-4567
-#+end_example
+** Wi-Fi Network QR Code
+[[./static/wifi_qrcode.png]]
 
-** Using MCP Resources (NEW)
-Access QR codes directly via resource URIs:
+Generates a QR code for Wi-Fi network access
+- Network: GuestWiFi
+- Password: Welcome123
 
-#+begin_src bash :tangle generated/resource-example.sh :mkdirp yes
-# Get the sample QR code
-mcp-server-qrcode resource "qrcode://sample" -o sample.png
+#+BEGIN_SRC python
+generate_qrcode("WIFI:S:GuestWiFi;T:WPA;P:Welcome123;;")
+#+END_SRC
 
-# Generate custom QR code with default settings
-mcp-server-qrcode resource "qrcode://https://anthropic.com" -o anthropic.png
+** Contact Information QR Code
+[[./static/contact_qrcode.png]]
 
-# Generate QR code with custom parameters
-mcp-server-qrcode resource "qrcode://Hello%20World?size=300&level=H" -o hello.png -v
-#+end_src
+Generates a QR code with contact details
+- Name: John Doe
+- Email: john@example.com
+- Phone: 555-123-4567
 
-* Usage
-
-** MCP Server Usage (Primary Mode)
-#+begin_src bash :tangle generated/mcp-server-qrcode-test.sh :mkdirp yes
-# Install the MCP server globally
-npm install -g @jwalsh/mcp-server-qrcode
-
-# The server is now available for use with MCP clients
-# such as Claude Desktop or MCP Inspector
-#+end_src
-
-*** With Claude Desktop
-To use this QR code generator with Claude Desktop:
-
-1. Configure Claude Desktop to use the MCP server
-2. Use the "Generate QR Code" tool to create QR codes for:
-   - URLs
-   - Plain text
-   - Contact information
-   - Wi-Fi credentials
-
-*** With MCP Inspector
-For development and testing with MCP Inspector:
-
-#+begin_src bash
-# Install the MCP Inspector
-npm install -g @modelcontextprotocol/inspector
-
-# Run the inspector with the QR code server
-mcp-inspector -- mcp-server-qrcode
-#+end_src
-
-** CLI Commands
-The server provides several CLI commands:
-
-#+begin_src bash :tangle generated/cli-commands.sh :mkdirp yes
-# 1. Start the MCP server (default)
-mcp-server-qrcode server
-
-# 2. Generate QR code directly
-mcp-server-qrcode generate -c "https://example.com" -s 300 -e H -f text
-mcp-server-qrcode generate -c "https://example.com" -o qrcode.png -f image
-
-# 3. Access QR codes via resources
-mcp-server-qrcode resource "qrcode://sample" -o sample.png
-mcp-server-qrcode resource "qrcode://https://example.com?size=400&level=Q" -o custom.png -v
-
-# 4. Pipe content to generate QR codes
-echo "https://example.com" | mcp-server-qrcode
-cat myfile.txt | mcp-server-qrcode
-#+end_src
-
-** Development & Testing
-For local development and testing:
-
-#+begin_src bash
-# Clone and set up the repository
-git clone https://github.com/jwalsh/mcp-server-qrcode.git
-cd mcp-server-qrcode
-npm install
-npm run build
-
-# Run tests
-npm test
-
-# Run MCP server for Inspector testing
-npm start
-#+end_src
-
-** Claude Desktop
-
-#+begin_src json :tangle generated/claude_desktop_config.json :mkdirp yes
-  {
-    "mcpServers": {
-      "qrcode": {
-        "args": [
-          "-y",
-          "@jwalsh/mcp-server-qrcode"
-        ],
-        "command": "npx"
-      }
-    }
-  }
-#+end_src
-
-1. Open Claude Desktop
-2. Use the integrated QR code generation feature
-3. Select content to generate QR code
-
-** Emacs (mcp.el)
-
-#+begin_src elisp :tangle generated/mcp-server-qrcode.el :mkdirp yes
-;; In Emacs with mcp.el loaded
-(mcp-connect-server "qrcode" 
-                    "npx" 
-                    '("-y" "@jwalsh/mcp-server-qrcode")
-                    :initial-callback
-                    (lambda (connection)
-                      (message "Connected to %s" (jsonrpc-name connection)))
-                    :tools-callback
-                    (lambda (connection tools)
-                      (message "Available tools: %s" tools)))
-
-#+end_src
-
-* Resource-Like URI API (NEW)
-This server now supports a resource-like URI API for direct QR code generation.
-
-** Sample Resource
-#+begin_src bash
-# Access the sample QR code
-mcp-server-qrcode resource "qrcode://sample" -o sample.png
-#+end_src
-
-** Custom Resources
-Generate custom QR codes with flexible parameters using a URI format:
-
-#+begin_src bash
-# Basic usage (with defaults)
-mcp-server-qrcode resource "qrcode://https://example.com" -o example.png
-
-# With custom size and error correction
-mcp-server-qrcode resource "qrcode://Hello%20World?size=300&level=H" -o hello.png
-
-# Resource URI format
-# qrcode://{content}?size={pixels}&level={L|M|Q|H}
-#+end_src
-
-** Resource URI Parameters
-- ~content~: Text to encode in the QR code (required)
-- ~size~: QR code size in pixels (100-1000, default: 200)
-- ~level~: Error correction level (L, M, Q, H, default: M)
-
-** View Generated QR Codes
-Add the ~-v~ or ~--view~ flag to automatically open the generated QR code:
-
-#+begin_src bash
-# Generate and view in one step
-mcp-server-qrcode resource "qrcode://sample" -o sample.png -v
-#+end_src
-
-* Configuration Options
-- ~--size~: Set the size of the QR code in pixels (default: 200)
-- ~--error-correction~: Set error correction level
-  - ~L~: Low (7% of codewords can be restored)
-  - ~M~: Medium (15% of codewords can be restored)
-  - ~Q~: Quartile (25% of codewords can be restored)
-  - ~H~: High (30% of codewords can be restored)
-
-* Supported Input Types
-- URLs
-- Plain text
-- Contact information
-- Wi-Fi credentials
-- Email addresses
-
-* Developer Documentation
-For detailed setup, installation, and contribution guidelines, please refer to [[file:DEVELOPERS.org][DEVELOPERS.org]].
-
-* License
-MIT License
+#+BEGIN_SRC python
+generate_qrcode("""BEGIN:VCARD
+N:Doe;John;;;
+FN:John Doe
+EMAIL:john@example.com
+TEL:555-123-4567
+END:VCARD""")
+#+END_SRC
