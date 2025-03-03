@@ -506,7 +506,6 @@ make ci
 #+end_src
 
 * Release Process
-
 ** Release Workflow
 Follow these steps to release a new version of the package:
 
@@ -529,76 +528,112 @@ The script handles most of the process but pauses for manual npm publish (due to
 *** Manual Release Process
 If you need to execute the release steps manually:
 
-1. *Update Version*: Bump the version in package.json
-   #+begin_src bash
-   # Use npm version to update package.json (creates a commit and tag automatically)
-   npm version patch -m "chore: bump version to %s"  # or minor, major
-   #+end_src
+**** 1. Update Version
+Bump the version in package.json:
 
-2. *Generate Changelog*: Update the CHANGELOG.org file
-   #+begin_src bash
-   npm run changelog
-   #+end_src
+#+begin_src bash
+# Use npm version to update package.json (creates a commit and tag automatically)
+npm version patch -m "chore: bump version to %s"  # or minor, major
+#+end_src
 
-3. *Commit Changelog*: Commit the changelog updates with [skip ci]
-   #+begin_src bash
-   # CRITICAL: Never use GPG signing for commits in this repo
-   git add CHANGELOG.org
-   git commit --no-gpg-sign -m "docs: update CHANGELOG.org for new version [skip ci]"
-   #+end_src
+**** 2. Generate Changelog
+Update the CHANGELOG.org file:
 
-4. *Push Changes*: Push the commits and tags
-   #+begin_src bash
-   git push origin main
-   git push origin --tags
-   #+end_src
+#+begin_src bash
+npm run changelog
+#+end_src
 
-5. *Create GitHub Release*: Create a release with notes from the changelog
-   #+begin_src bash
-   # Generate release tarball
-   npm pack
+**** 3. Commit Changelog
+Commit the changelog updates with [skip ci]:
+
+#+begin_src bash
+# CRITICAL: Never use GPG signing for commits in this repo
+git add CHANGELOG.org
+git commit --no-gpg-sign -m "docs: update CHANGELOG.org for new version [skip ci]"
+#+end_src
+
+**** 4. Push Changes
+Push the commits and tags:
+
+#+begin_src bash
+git push origin main
+git push origin --tags
+#+end_src
+
+**** 5. Create GitHub Release
+Create a release with notes from the changelog:
+
+#+begin_src bash
+# Clean up any existing tarballs
+rm -f *.tgz
+
+# Generate release tarball
+npm pack
    
-   # Create draft release with the tarball
-   VERSION=$(jq -r .version package.json)
-   gh release create "v$VERSION" *.tgz --title "v$VERSION" --notes "See CHANGELOG.org for details" --draft
-   #+end_src
+# Create draft release with the tarball
+VERSION=$(jq -r .version package.json)
+gh release create "v$VERSION" *.tgz --title "v$VERSION" --notes "See CHANGELOG.org for details" --draft
+#+end_src
+**** 6. Pre-Release Verification
+Test with MCP Inspector before publishing:
 
-6. *Pre-Release Verification*: Test with MCP Inspector before publishing
-   #+begin_src bash
-   # Verify server functionality with MCP Inspector
-   make inspector-dev
-   # Test in the inspector UI by creating a QR code
-   #+end_src
+#+begin_src bash
+# Verify server functionality with MCP Inspector
+make inspector-dev
+# Test in the inspector UI by creating a QR code
+#+end_src
 
-7. *Publish to npm*: Publish the package (requires 2FA)
-   #+begin_src bash
-   npm publish
-   #+end_src
+**** 7. Publish to npm
+Publish the package (requires 2FA):
 
-8. *Verify Publication*: Confirm the package is properly published
-   #+begin_src bash
-   # Verify npm package
-   npm view @jwalsh/mcp-server-qrcode version
-   #+end_src
+#+begin_src bash
+npm publish
+#+end_src
 
-9. *Publish GitHub Release*: Remove draft status from the release
-   #+begin_src bash
-   gh release edit "v$VERSION" --draft=false
-   #+end_src
+**** 8. Verify Publication
+Confirm the package is properly published:
+
+#+begin_src bash
+# Verify npm package
+npm view @jwalsh/mcp-server-qrcode version
+#+end_src
+
+**** 9. Publish GitHub Release
+Remove draft status from the release:
+
+#+begin_src bash
+gh release edit "v$VERSION" --draft=false
+#+end_src
+
+**** 10. Sanity Check
+Verify the package works correctly when installed from npm:
+
+#+begin_src bash
+# Test the published package with a QR code generation
+npm install -g @jwalsh/mcp-server-qrcode
+echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"https://github.com/jwalsh/mcp-server-qrcode/releases/tag/v'$VERSION'","format":"text"}},"id":1,"jsonrpc":"2.0"}' | mcp-server-qrcode | jq -r '.result.content[1].text'
+#+end_src
+
+When validating with MCP Inspector, the successful connection should look like this:
    
-   When validating with MCP Inspector, the successful connection should look like this:
-   
-   [[file:static/localhost_5173_.png][MCP Inspector Validation]]
-
+[[file:static/localhost_5173_.png][MCP Inspector Validation]]
 * Contributing
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/your-feature-name`)
 3. Make your changes
-4. Run ~make ci~ to ensure all checks pass
-5. Submit a pull request
+4. Run tests locally with `make test`
+5. Run `make ci` to ensure all checks pass
+6. Add appropriate documentation updates if needed
+7. Submit a pull request with a clear description of the changes
+
+For more detailed contribution guidelines, see [[file:CONTRIBUTING.org][CONTRIBUTING.org]].
 
 * Troubleshooting
 - Ensure you're using Node.js 18.0.0 or higher
-- Install ~qrencode~ utility for your system
+- Install ~qrencode~ utility for your system (see Prerequisites section)
 - Run ~make initialize~ if you encounter dependency issues
 - Check ~make setup~ for environment verification
+- If you encounter JSON-RPC errors, use the MCP Inspector to debug requests and responses
+- For CLI issues, try running with `--verbose` flag for additional output
+- For common Claude Desktop integration issues, check the log files at `~/Library/Logs/Claude/mcp*.log`
+
