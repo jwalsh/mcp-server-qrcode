@@ -1,76 +1,45 @@
 # Claude's Development Notes for MCP QR Code Server
 
-## Project Setup
+## FreeBSD/BSD Compatibility
+- **Make**: Use `gmake` on FreeBSD/BSD systems (required - BSD make is incompatible)
+- **Grep Issue**: FreeBSD grep lacks some GNU features - may need to install GNU grep
+- The Makefile help target fails on FreeBSD due to grep incompatibility
+- If scripts fail, you may need to install GNU versions of utilities:
+  - `pkg install gnugrep` for GNU grep (ggrep)
+  - `pkg install coreutils` for GNU date (gdate) and other core utilities
 
-### Key Development Requirements
-- TypeScript
-- ESLint v9 Flat Configuration
-- Node.js 18.0.0+
-- Org-mode Documentation
+## Development Commands
+- Setup: `gmake initialize` then `gmake setup` (FreeBSD) or `make initialize` then `make setup` (Linux/macOS)
+- Development: `gmake dev` (FreeBSD) or `make dev` (Linux/macOS)
+- Run server: `node build/main.js` (works everywhere)
+- Build: `npm run build` (works everywhere)
+- Test all: `npm test` (works everywhere)
+- Test single file: `node --experimental-vm-modules node_modules/jest/bin/jest.js src/__tests__/file.test.ts`
+- Test single case: `node --experimental-vm-modules node_modules/jest/bin/jest.js -t "test description"`
+- Lint: `npm run lint` (works everywhere)
+- Type check: `npm run typecheck`
+- Format: `npm run format`
+- CI checks: `npm run ci` (prefer npm commands on FreeBSD)
 
-### Onboarding Workflow
-1. Clone repository
-2. Run `make initialize`
-3. Run `make setup`
-4. For development: `make dev`
-5. To start application: `make quickstart`
-6. Run tests: `make test`
-7. Lint code: `make lint`
-8. Fix linting issues: `make lint-fix`
-
-## Git Commit Requirements
-- **CRITICAL**: ALWAYS use `git commit --no-gpg-sign` when committing
-- **NEVER** allow GPG signing of commits as it breaks the tooling
-- This applies to all commits in this repository
-- **IMPORTANT**: Also use `--no-gpg-sign` with `npm version patch -m "chore: bump version to %s"` to prevent freezing
+## Code Style Guidelines
+- **TypeScript**: Explicit return types required, minimize `any` usage
+- **Formatting**: 2 spaces, single quotes, semicolons, 120 chars max line length
+- **Naming**: camelCase for variables/functions, PascalCase for types/classes, UPPER_SNAKE_CASE for constants
+- **Imports**: Group by external → MCP SDK → project → Node.js std lib
+- **Error handling**: Use explicit error types and descriptive messages
+- **Documentation**: JSDoc for public APIs, inline comments for complex logic
+- **Git commits**: Use conventional commit format, ALWAYS add `--no-gpg-sign` flag
 
 ## Server Entry Points
-- MCP Server: Use `build/main.js` as the main entry point for all MCP clients
-- MCP Inspector: Use `make inspector-dev` to test with the inspector
-- CLI usage: `node build/cli.js` for direct CLI features
-
-## Release Process Sequence
-1. Update version with `npm version patch -m "chore: bump version to %s"`  
-2. Generate changelog with `npm run changelog`
-3. Commit changelog with `git commit --no-gpg-sign -m "docs: update CHANGELOG.org [skip ci]"`
-4. Push changes with `git push origin main && git push origin --tags`
-5. Create draft release `gh release create v{VERSION} --draft`
-6. Test with MCP Inspector `make inspector-dev`
-7. Publish to npm `npm publish` (requires 2FA)
-8. Verify package `npm view @jwalsh/mcp-server-qrcode version` 
-9. Publish GitHub release `gh release edit v{VERSION} --draft=false`
-
-## Pre-Release Verification
-- Always test with MCP Inspector before release: `make inspector-dev`
-- Verify functionality through both Inspector and Claude Desktop
-- Confirm QR code generation works with various input types
-
-## ESLint Migration Notes
-- Migrated to flat configuration in `eslint.config.js`
-- Added `@stylistic/eslint-plugin` for consistent formatting
-- Removed legacy `.eslintrc.json`
-
-## Continuous Integration
-- Comprehensive checks via `make ci`
-- Includes linting, formatting, type checking, and testing
-
-## Scripting
-- Added initialization scripts in `./scripts/`
-- Supports environment setup and quick start
-
-## Dependency Management
-- Use npm for package management
-- Strict Node.js version requirement (18.0.0+)
+- Production: `build/main.js` for MCP clients
+- Inspector: `make inspector-dev`
+- CLI: `node build/cli.js` for direct features
 
 ## Documentation Strategy
-- IMPORTANT: Use org-mode ONLY for ALL documentation
-- Do NOT update or use README.md - use README.org instead
-- Keep README.org high-level and usage-focused
-- Detailed setup in DEVELOPERS.org
+- Use org-mode ONLY (.org extension) for ALL documentation
+- Keep README.org high-level, DEVELOPERS.org for setup details
 - Use CONTRIBUTING.org for contribution guidelines
-- All documentation uses .org extension (not .md)
 
-## CLI Usage
-- Server mode: Run `node build/main.js` to start MCP server
-- Pipe input: `echo "content" | node build/cli.js` to generate QR code directly from stdin
-- Direct CLI processing supports terminal-friendly output format
+## Git Requirements
+- **CRITICAL**: ALWAYS use `git commit --no-gpg-sign` - GPG signing breaks tooling
+- **IMPORTANT**: Use `--no-gpg-sign` with all version commands
