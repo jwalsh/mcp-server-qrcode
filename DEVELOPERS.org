@@ -54,17 +54,13 @@ make quickstart
 #+end_src
 
 * Running the Server
-#+begin_src bash :results silent
+#+begin_src bash
 # Start the MCP server
 npm start
-#+end_src
 
-#+begin_src bash :results raw :wrap example
 # For local development with CLI features
 npm run cli -- -g "Hello World"
-#+end_src
 
-#+begin_src bash :results raw :wrap example
 # Test piping with the CLI
 echo "Hello World" | npm run cli
 #+end_src
@@ -72,161 +68,64 @@ echo "Hello World" | npm run cli
 The server will start and listen for MCP requests over stdin/stdout.
 
 ** Deployment Modes
+
 This project supports two modes:
 
 1. *MCP Server Mode (Production)*: When installed globally with ~npm install -g~, the ~mcp-server-qrcode~ command starts the MCP server with no CLI functionality. This is what end users will use with Claude Desktop, MCP Inspector, etc.
 
 2. *CLI Mode (Development)*: For local development and testing, use ~npm run cli~ to access CLI features including stdin piping and command-line arguments. These features are not included in the published package.
+
 * Architecture
-The project consists of three main components:
+
+The project consists of two main components:
 
 1. A command-line interface (CLI) for generating QR codes (for development/testing)
 2. An MCP server implementation for integration with MCP clients (primary use case)
-3. Resource endpoints and predefined prompts for enhanced functionality
 
-All components share the core QR code generation functionality defined in ~src/qrcode.ts~, which provides a unified interface for different output formats.
-
-** System Architecture Diagram
-#+begin_src mermaid :file docs/architecture-diagram.png :exports both
-graph TD
-    Client[MCP Client<br/>Claude/Inspector/Emacs] -->|JSON-RPC| Server[MCP Server]
-    CLI[Command Line<br/>Interface] -->|Direct Call| QRCore[QR Code Core]
-    Server -->|Internal Call| QRCore
-    Server -->|Register| Tools[Tool: generate-qrcode]
-    Server -->|Register| Resources[Resources<br/>qrcode://...]
-    Server -->|Register| Prompts[Predefined<br/>Prompts]
-    QRCore -->|Generate| QRText[Text QR]
-    QRCore -->|Generate| QRImage[Image QR]
-    subgraph "src/qrcode.ts"
-        QRCore
-    end
-    subgraph "src/index.ts"
-        Server
-        Tools
-        Resources
-        Prompts
-    end
-    subgraph "src/cli.ts"
-        CLI
-    end
-    subgraph "src/main.ts"
-        Transport[StdIO Transport]
-    end
-    Server --> Transport
-#+end_src
-
-#+RESULTS:
-[[file:docs/architecture-diagram.png]]
+Both components share the core QR code generation functionality defined in ~src/qrcode.ts~, which provides a unified interface for different output formats.
 
 ** Command-Line Interface (CLI)
+
 The CLI supports multiple modes of operation (primarily for development and testing):
 
-*** *Pipe mode*: Accept input via stdin
-   #+begin_src bash :results raw :wrap example
+1. *Pipe mode*: Accept input via stdin
+   #+begin_src bash
    echo "https://example.com" | npm run cli
    #+end_src
 
-   #+RESULTS:
-   #+begin_example
-
-   > @jwalsh/mcp-server-qrcode@1.0.2 cli
-   > node build/cli.js
-
-   █████████████████████████████████
-   █████████████████████████████████
-   ████ ▄▄▄▄▄ █▄▀ █ ▀ █▀█ ▄▄▄▄▄ ████
-   ████ █   █ █▄ ▄█▀ ▀█▄█ █   █ ████
-   ████ █▄▄▄█ █▀ █ ▀█ ███ █▄▄▄█ ████
-   ████▄▄▄▄▄▄▄█▄▀▄█ █ ▀ █▄▄▄▄▄▄▄████
-   ████ ▀▄▀▀▀▄▄▀▀    ▄▀▄▀▀ █▀▄▀ ████
-   ████▄▀█▄▀ ▄▄▀   ▀▀█▄▀▄█▀▄ ▄█▄████
-   █████▀▀▄ ▄▄▄ ▀ █ ▄█  █  ███▀ ████
-   ████▄▄▄█▄▄▄▀▄▀█▀ ▄ ▄  ▄▀▀ ▄█▄████
-   ████▄▄██▄█▄▄▀▄███  █ ▄▄▄ ██▄▀████
-   ████ ▄▄▄▄▄ █▄█▄▄█▀█▀ █▄█ ██▀ ████
-   ████ █   █ ██ █▄ ▄█▄▄ ▄▄ █▀ ▄████
-   ████ █▄▄▄█ █▄ █▀ ▄    ▀  ▄█▄▄████
-   ████▄▄▄▄▄▄▄█▄▄▄██▄▄█▄█▄██▄██▄████
-   █████████████████████████████████
-   █████████████████████████████████
-
-   #+end_example
-
-*** *Generate mode*: Generate QR code with command line options
-   #+begin_src bash :results raw :wrap example
-   npm run cli -- -g "Hello World" -s 300 -e H
+2. *Generate mode*: Generate QR code with command line options
+   #+begin_src bash
+   npm run cli -- -g "https://example.com" -s 300 -e H
    #+end_src
-
-   #+RESULTS:
-   #+begin_example
-
-   > @jwalsh/mcp-server-qrcode@1.0.2 cli
-   > node build/cli.js -g Hello World -s 300 -e H
-
-   #+end_example
-
-
-*** *Resource mode*: Generate QR code from a resource URI
-   #+begin_src bash :results raw :wrap example
-   npm run cli resource "qrcode://wifi?ssid=MyNetwork&password=password123"
-   #+end_src
-
-   #+RESULTS:
-   #+begin_example
-
-   > @jwalsh/mcp-server-qrcode@1.0.2 cli
-   > node build/cli.js resource qrcode://wifi?ssid=MyNetwork&password=password123
-
-   #+end_example
 
 ** MCP Server Implementation
+
 The MCP server enables interaction with MCP clients like Claude Desktop and Inspector. It's implemented following the Model Context Protocol standards.
 
 *** Core Implementation Structure
+
 The ~index.ts~ file contains the primary MCP server implementation:
 
-#+begin_src typescript :tangle generated/index-example.ts
+#+begin_src typescript
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
 // Create an MCP server
 const server = new McpServer({
   name: "QR Code Generator",
-  version: "0.3.6"
-});
-
-// Register capabilities
-server.server.registerCapabilities({
-  resources: {
-    root: "qrcode://",
-    get: true,
-    list: true
-  },
-  prompts: {
-    list: true
-  }
+  version: "0.1.0"
 });
 
 // Add the QR code generation tool
 server.tool(
   "generate-qrcode",
-  "Generate QR codes in various formats with customizable error correction levels and sizes",
   {
     content: z.string().describe("The text content to encode in the QR code"),
     errorCorrectionLevel: z.enum(["L", "M", "Q", "H"])
-      .describe("Error correction level (L: 7%, M: 15%, Q: 25%, H: 30%)")
+      .describe("Error correction level")
       .optional()
       .default("M"),
-    size: z.number()
-      .min(1)
-      .max(10)
-      .describe("Size of the QR code (1-10)")
-      .optional()
-      .default(3),
-    format: z.enum(["image", "text"])
-      .describe("Output format: 'image' for PNG QR code, 'text' for terminal-friendly output")
-      .optional()
-      .default("image")
+    // Other parameters...
   },
   async ({ content, errorCorrectionLevel, size, format }) => {
     // Tool implementation...
@@ -236,17 +135,11 @@ server.tool(
 export default server;
 #+end_src
 
-*** Data Flow
-1. Client sends a request to the MCP server
-2. Server processes the request and determines operation type (tool call, resource, etc.)
-3. QR code generation functionality in ~qrcode.ts~ is invoked with appropriate parameters
-4. Result is formatted according to MCP specifications and returned to the client
-5. Client displays or processes the QR code as needed
-
 *** Server Entry Point
+
 The ~main.ts~ file provides the entry point that connects the server to a transport:
 
-#+begin_src typescript :tangle generated/main-example.ts
+#+begin_src typescript
 import server from './index.js';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
@@ -262,6 +155,7 @@ server.connect(transport)
 #+end_src
 
 *** Example MCP Server Implementations
+
 For more sophisticated MCP server examples and patterns, refer to these implementations:
 
 1. *File System Server*: [[https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/index.ts][filesystem/index.ts]]
@@ -279,6 +173,7 @@ For more sophisticated MCP server examples and patterns, refer to these implemen
 4. *Everything Server*: [[https://github.com/modelcontextprotocol/servers/blob/main/src/everything/index.ts][everything/index.ts]]
    - Desktop search integration
    - Example of local application integration
+
 * Using with MCP Clients
 
 ** Claude Desktop 
@@ -295,102 +190,6 @@ For more sophisticated MCP server examples and patterns, refer to these implemen
     }
   }
 #+end_src
-
-For the published package, use:
-
-#+begin_src json
-  {
-    "mcpServers": {
-      "qrcode": {
-        "args": [
-          "-y",
-          "@jwalsh/mcp-server-qrcode"
-        ],
-        "command": "npx"
-      }
-    }
-  }
-#+end_src
-
-** Emacs with mcp.el
-The QR code server can be used with Emacs via the mcp.el package:
-
-#+begin_src elisp :tangle generated/mcp-server-qrcode.el
-;; Basic installation with straight.el
-(use-package mcp
-  :straight (mcp :type git :host github :repo "lizqwerscott/mcp.el"))
-
-;; Connect to the QR code server
-(mcp-connect-server
- "qrcode" 
- "npx" 
- '("-y" "@jwalsh/mcp-server-qrcode")
- :initial-callback
- (lambda (connection)
-   (message "Connected to %s" (jsonrpc-name connection)))
- :tools-callback
- (lambda (connection tools)
-   (message "Available tools: %s" tools)))
-
-;; Generate a QR code with text output
-(defun mcp-qrcode-text (content)
-  "Generate a text QR code for CONTENT."
-  (interactive "sContent for QR code: ")
-  (let ((connection (gethash "qrcode" mcp-server-connections)))
-    (when connection
-      (mcp-call-tool connection 
-                    "generate-qrcode" 
-                    (list :content content 
-                          :format "text")))))
-
-;; Generate a QR code with image output
-(defun mcp-qrcode-image (content)
-  "Generate an image QR code for CONTENT."
-  (interactive "sContent for QR code: ")
-  (let ((connection (gethash "qrcode" mcp-server-connections)))
-    (when connection
-      (mcp-call-tool connection 
-                    "generate-qrcode" 
-                    (list :content content 
-                          :format "image")))))
-
-;; Comprehensive QR code function with display capabilities
-(defun qrcode-generate (content &optional format)
-  "Generate QR code for CONTENT with optional FORMAT (text or image).
-Displays the result in a dedicated buffer."
-  (interactive "sContent for QR code: ")
-  (let ((connection (gethash "qrcode" mcp-server-connections))
-        (fmt (or format "text")))
-    (if connection
-        (let ((result (mcp-call-tool connection
-                                    "generate-qrcode"
-                                    (list :content content :format fmt))))
-          (with-current-buffer (get-buffer-create "*QR Code*")
-            (erase-buffer)
-            (when (eq fmt "text")
-              (insert (plist-get (aref (plist-get result :content) 1) :text)))
-            (display-buffer (current-buffer))))
-      (message "QR code server not connected. Run mcp-connect-server first."))))
-
-;; For local development with direct path to build/main.js
-(defun mcp-qrcode-connect-dev ()
-  "Connect to local development QR code server."
-  (interactive)
-  (mcp-connect-server
-   "qrcode-dev" 
-   "node" 
-   '("~/projects/mcp-server-qrcode/build/main.js")))
-#+end_src
-
-The code above provides several useful functions for working with QR codes in Emacs:
-
-1. Installation via straight.el
-2. Connection setup to the MCP QR code server
-3. Simple functions for generating text and image QR codes
-4. A comprehensive function that generates and displays QR codes
-5. A helper function for connecting to a local development server
-
-To use these functions, evaluate the code, then call one of the interactive functions such as `M-x mcp-qrcode-text` or `M-x qrcode-generate`.
 
 ** MCP Inspector
 
@@ -417,76 +216,404 @@ The server also supports direct piping from the command line:
 
 #+begin_src bash
 echo "https://example.com" | mcp-server-qrcode
+cat myfile.txt | mcp-server-qrcode
 #+end_src
 
-#+RESULTS:
+* Debugging 
 
-#+begin_src bash
-  date > generated/myfile.txt
-  cat generated/myfile.txt | mcp-server-qrcode
-#+end_src
-
-#+RESULTS:
+- https://modelcontextprotocol.io/docs/tools/debugging
 
 * Testing
-
-The project includes a comprehensive test suite built with Jest:
-
 #+begin_src bash
 # Run tests
 make test
 
-# Run tests with watch mode (for development)
+# Run tests with watch
 make test-watch
 
-# Run tests with coverage report
+# Run tests with coverage
 make test-coverage
 #+end_src
 
-The current test suite focuses on core QR code generation functionality with plans to expand coverage.
+* JSONRPC Method Comparison
 
-** Protocol Compliance Testing
+The following table shows the JSONRPC methods supported across different MCP implementations:
 
-The server can be verified against the MCP protocol using the included test script:
+| JSONRPC Method              | MCP Inspector | mcp.el                                                 | QR Code Server |
+|-----------------------------+---------------+--------------------------------------------------------+----------------|
+| ~initialize~                | ✅            | ✅ Via ~mcp-async-initialize-message~                  | ✅             |
+| ~ping~                      | ✅            | ✅ Via ~mcp-async-ping~                                | ✅             |
+| ~notifications/initialized~ | ✅            | ✅ Via ~mcp-notify~                                    | ✅             |
+| ~notifications/stderr~      | ✅            | ❌                                                     | ❌             |
+| ~tools/list~                | ✅            | ✅ Via ~mcp-async-list-tools~                          | ✅             |
+| ~tools/call~                | ✅            | ✅ Via ~mcp-call-tool~ & ~mcp-async-call-tool~         | ✅             |
+| ~prompts/list~              | ✅            | ✅ Via ~mcp-async-list-prompts~                        | ✅             |
+| ~prompts/get~               | ✅            | ✅ Via ~mcp-get-prompt~ & ~mcp-async-get-prompt~       | ✅             |
+| ~resources/list~            | ✅            | ✅ Via ~mcp-async-list-resources~                      | ✅             |
+| ~resources/read~            | ✅            | ✅ Via ~mcp-read-resource~ & ~mcp-async-read-resource~ | ✅             |
+| ~resources/templates/list~  | ✅            | ✅ Via ~mcp-async-list-resource-templates~             | ✅             |
 
-#+begin_src bash
-./scripts/test-mcp-protocol.sh
+* Interactive Tests
+:PROPERTIES:
+:CUSTOM_ID: tests
+:END:
+
+These tests can be run interactively to verify the functionality of the MCP QR Code Server.
+
+** Build Project First
+:PROPERTIES:
+:CUSTOM_ID: build
+:END:
+
+#+begin_src bash :tangle scripts/build.sh :mkdirp yes :shebang "#!/bin/bash"
+# Ensure the project is built before running tests
+npm run build
+echo "✅ Project built successfully"
 #+end_src
 
-This tests all key MCP protocol methods:
-- initialize/initialized
-- tools/list and tools/call
-- resources/list
-- prompts/list
-- ping and shutdown
+#+RESULTS:
+: ✅ Project built successfully
 
-Output confirms proper implementation of all required MCP endpoints.
+** Core Method Tests
+:PROPERTIES:
+:CUSTOM_ID: core-methods
+:END:
 
-** Manual Testing and Debugging
-
-Several tools are available for manual testing and debugging:
-
-#+begin_src bash
-# Test with MCP Inspector
-make inspector-dev
-
-# Test different resource formats
-npm run cli resource "qrcode://sample"
-npm run cli resource "qrcode://wifi?ssid=TestNetwork&password=test123"
+*** Initialize Method
+#+begin_src bash :tangle scripts/test-initialize.sh  :mkdirp yes :results output :exports both  :results output :exports both :shebang "#!/bin/bash"
+echo '{"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{"roots":{"listChanged":true}},"clientInfo":{"name":"test-client","version":"0.1.0"}},"id":1,"jsonrpc":"2.0"}' | node build/main.js | jq '.'
 #+end_src
 
-[[file:docs/inspector.png]]
+#+RESULTS:
+#+begin_example
+{
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "tools": {}
+    },
+    "serverInfo": {
+      "name": "QR Code Generator",
+      "version": "0.1.0"
+    }
+  },
+  "jsonrpc": "2.0",
+  "id": 1
+}
+#+end_example
 
-For detailed MCP debugging guidelines, see the [official MCP debugging documentation](https://modelcontextprotocol.io/docs/tools/debugging).
+*** Ping Method
+#+begin_src bash :tangle scripts/test-ping.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"ping","params":{},"id":1,"jsonrpc":"2.0"}' | node build/main.js | jq '.'
+#+end_src
 
-** Test Structure
+#+RESULTS:
+#+begin_example
+{
+  "result": "pong",
+  "jsonrpc": "2.0",
+  "id": 1
+}
+#+end_example
 
-The test files are organized in the `src/__tests__` directory:
-- `noop.test.ts` - Basic sanity tests
-- `qr-generator.test.ts` - Tests for the core QR code generation functionality
-- `templates.test.ts` - Tests for resource templates and schema validation
+** Tools Interface Tests
+:PROPERTIES:
+:CUSTOM_ID: tools-tests
+:END:
 
-New tests should follow the existing pattern and focus on testing one feature or component at a time.
+*** List Tools
+#+begin_src bash :tangle scripts/test-tools-list.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"tools/list","params":{},"id":1,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.tools[] | {name, description}'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+{
+  "name": "generate-qrcode",
+  "description": "Generate a QR code from text content"
+}
+#+end_example
+
+*** Call QR Code Generation Tool (Text Format)
+#+begin_src bash :tangle scripts/test-tools-call-text.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"https://anthropic.com","format":"text"}},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.content[] | select(.type=="text") | .text'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+"QR code generated for: https://anthropic.com"
+"██████████████████████████████████████████████\n██████████████████████████████████████████████\n████              ██████              ████\n████  ██████████  ██████  ██████████  ████\n████  ██      ██  ██████  ██      ██  ████\n████  ██      ██  ██████  ██      ██  ████\n████  ██      ██  ██████  ██      ██  ████\n████  ██████████  ██████  ██████████  ████\n████              ██████              ████\n████████████  ██  ██  ██    ██  ██  ██████\n██████████          ██  ██  ██████  ██████\n██████████        ████        ████  ██████\n██████████  ██  ██    ██    ██  ████  ████\n██████████  ██████  ██    ██    ██  ██████\n████              ██      ██████    ██████\n████  ██████████  ████    ████  ██  ██████\n████  ██      ██  ██    ██████    ████████\n████  ██      ██  ██████  ██  ██    ██████\n████  ██      ██  ██  ██  ██  ██  ████████\n████  ██████████  ██      ██  ██    ██████\n████              ██  ██    ██  ██████████\n██████████████████████████████████████████████\n██████████████████████████████████████████████"
+#+end_example
+
+*** Call QR Code Generation Tool (Image Format)
+#+begin_src bash :tangle scripts/test-tools-call-image.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+# This will generate a base64-encoded image - show just the first part
+echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"https://anthropic.com","format":"image"}},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq -r '.result.content[] | select(.type=="image") | .data' | head -c 50
+echo "... [base64 data truncated]"
+#+end_src
+
+#+RESULTS:
+: iVBORw0KGgoAAAANSUhEUgAAAhwAAAIcAQMAAACSSQR3AAA... [base64 data truncated]
+
+** Prompts Interface Tests
+:PROPERTIES:
+:CUSTOM_ID: prompts-tests
+:END:
+
+*** List Prompts
+#+begin_src bash :tangle scripts/test-prompts-list.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"prompts/list","params":{},"id":1,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.prompts'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[
+  {
+    "name": "qrcode-formatter",
+    "description": "Format QR code input for various use cases",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "url",
+            "wifi",
+            "contact",
+            "text"
+          ],
+          "description": "Type of QR code content to format"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Parameters specific to the QR code type"
+        }
+      },
+      "required": [
+        "type",
+        "parameters"
+      ]
+    }
+  }
+]
+#+end_example
+
+*** Get Prompt (Wi-Fi)
+#+begin_src bash :tangle scripts/test-prompts-get-wifi.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"prompts/get","params":{"name":"qrcode-formatter","arguments":{"type":"wifi","parameters":{"ssid":"GuestWiFi","password":"Welcome123","encryption":"WPA"}}},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.content'
+#+end_src
+
+#+RESULTS:
+: "WIFI:S:GuestWiFi;T:WPA;P:Welcome123;;"
+
+** Resources Interface Tests
+:PROPERTIES:
+:CUSTOM_ID: resources-tests
+:END:
+
+*** List Resources
+#+begin_src bash :tangle scripts/test-resources-list.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"resources/list","params":{},"id":1,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.resources'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[
+  {
+    "uri": "qrcode-examples",
+    "description": "Examples of different QR code formats",
+    "mimeType": "text/markdown"
+  },
+  {
+    "uri": "qrcode-specs",
+    "description": "Technical specifications for QR code generation",
+    "mimeType": "text/markdown"
+  }
+]
+#+end_example
+
+*** Read Resource
+#+begin_src bash :tangle scripts/test-resources-read.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"resources/read","params":{"uri":"qrcode-examples"},"id":2,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.content'
+#+end_src
+
+#+RESULTS:
+: "# QR Code Examples\n\n## URL\n`https://example.com`\n\n## Wi-Fi\n`WIFI:S:MyNetwork;T:WPA;P:MyPassword;;`\n\n## Contact\n```\nBEGIN:VCARD\nN:Doe;John;;;\nFN:John Doe\nEMAIL:john@example.com\nTEL:555-123-4567\nEND:VCARD\n```"
+
+*** List Resource Templates
+#+begin_src bash :tangle scripts/test-resources-templates-list.sh  :mkdirp yes :results output :exports both  :shebang "#!/bin/bash"
+echo '{"method":"resources/templates/list","params":{},"id":3,"jsonrpc":"2.0"}' | node build/main.js | jq '.result.resourceTemplates'
+#+end_src
+
+#+RESULTS:
+#+begin_example
+[
+  {
+    "name": "wifi-template",
+    "description": "Template for Wi-Fi QR codes",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "ssid": {
+          "type": "string",
+          "description": "Network name"
+        },
+        "encryption": {
+          "type": "string",
+          "enum": [
+            "WPA",
+            "WEP",
+            "nopass"
+          ],
+          "description": "Encryption type"
+        },
+        "password": {
+          "type": "string",
+          "description": "Network password"
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "Whether the network is hidden",
+          "default": false
+        }
+      },
+      "required": [
+        "ssid",
+        "encryption"
+      ]
+    }
+  }
+]
+#+end_example
+
+* JSON Schema Reference
+:PROPERTIES:
+:CUSTOM_ID: json-schemas
+:END:
+
+** Core Methods
+
+*** ~initialize~ Request/Response Schema
+#+begin_src js :tangle schemas/initialize.js  :mkdirp yes :results output :exports both 
+// initialize request
+{
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {
+      "roots": {
+        "listChanged": true
+      }
+    },
+    "clientInfo": {
+      "name": "mcp-client-name",
+      "version": "0.1.0"
+    }
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}
+
+// initialize response
+{
+  "result": {
+    "protocolVersion": "2024-11-05",
+    "serverInfo": {
+      "name": "mcp-server-qrcode",
+      "version": "0.1.0"
+    },
+    "capabilities": {
+      "tools": {},
+      "prompts": {},
+      "resources": {}
+    }
+  },
+  "id": 1,
+  "jsonrpc": "2.0"
+}
+#+end_src
+
+*** ~tools/call~ Request/Response Schema
+#+begin_src js :tangle schemas/tools-call.js  :mkdirp yes :results output :exports both 
+// tools/call request for QR code generation
+{
+  "method": "tools/call",
+  "params": {
+    "name": "generate-qrcode",
+    "arguments": {
+      "content": "https://example.com",
+      "format": "image",
+      "errorCorrectionLevel": "M",
+      "size": 3
+    }
+  },
+  "id": 2,
+  "jsonrpc": "2.0"
+}
+
+// tools/call response
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "QR code generated for: https://example.com"
+      },
+      {
+        "type": "image",
+        "mimeType": "image/png",
+        "data": "base64-encoded-image-data"
+      }
+    ]
+  },
+  "id": 2,
+  "jsonrpc": "2.0"
+}
+#+end_src
+
+*** ~prompts/get~ Request/Response Schema
+#+begin_src js :tangle schemas/prompts-get.js  :mkdirp yes :results output :exports both 
+// prompts/get request for Wi-Fi
+{
+  "method": "prompts/get",
+  "params": {
+    "name": "qrcode-formatter",
+    "arguments": {
+      "type": "wifi",
+      "parameters": {
+        "ssid": "MyWiFi",
+        "password": "MyPassword",
+        "encryption": "WPA"
+      }
+    }
+  },
+  "id": 2,
+  "jsonrpc": "2.0"
+}
+
+// prompts/get response
+{
+  "result": {
+    "content": "WIFI:S:MyWiFi;T:WPA;P:MyPassword;;"
+  },
+  "id": 2,
+  "jsonrpc": "2.0"
+}
+#+end_src
+
+
+* References
+
+** MCP Protocol Documentation
+- [[https://modelcontextprotocol.io/docs/specification/jsonrpc][MCP JSONRPC Specification]]
+- [[https://modelcontextprotocol.io/docs/tools/mcp-inspector][MCP Inspector Usage]]
+- [[https://modelcontextprotocol.io/docs/tools/debugging][MCP Debugging Guide]]
+
+** Example MCP Server Implementations
+- [[https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/index.ts][File System Server]]
+- [[https://github.com/modelcontextprotocol/servers/blob/main/src/github/index.ts][GitHub Server]]
+- [[https://github.com/modelcontextprotocol/servers/blob/main/src/google-maps/index.ts][Google Maps Server]]
+
 * Linting and Formatting
 #+begin_src bash
 # Lint code
@@ -506,6 +633,7 @@ make ci
 #+end_src
 
 * Release Process
+
 ** Release Workflow
 Follow these steps to release a new version of the package:
 
@@ -528,112 +656,76 @@ The script handles most of the process but pauses for manual npm publish (due to
 *** Manual Release Process
 If you need to execute the release steps manually:
 
-**** 1. Update Version
-Bump the version in package.json:
+1. *Update Version*: Bump the version in package.json
+   #+begin_src bash
+   # Use npm version to update package.json (creates a commit and tag automatically)
+   npm version patch -m "chore: bump version to %s"  # or minor, major
+   #+end_src
 
-#+begin_src bash
-# Use npm version to update package.json (creates a commit and tag automatically)
-npm version patch -m "chore: bump version to %s"  # or minor, major
-#+end_src
+2. *Generate Changelog*: Update the CHANGELOG.org file
+   #+begin_src bash
+   npm run changelog
+   #+end_src
 
-**** 2. Generate Changelog
-Update the CHANGELOG.org file:
+3. *Commit Changelog*: Commit the changelog updates with [skip ci]
+   #+begin_src bash
+   # CRITICAL: Never use GPG signing for commits in this repo
+   git add CHANGELOG.org
+   git commit --no-gpg-sign -m "docs: update CHANGELOG.org for new version [skip ci]"
+   #+end_src
 
-#+begin_src bash
-npm run changelog
-#+end_src
+4. *Push Changes*: Push the commits and tags
+   #+begin_src bash
+   git push origin main
+   git push origin --tags
+   #+end_src
 
-**** 3. Commit Changelog
-Commit the changelog updates with [skip ci]:
-
-#+begin_src bash
-# CRITICAL: Never use GPG signing for commits in this repo
-git add CHANGELOG.org
-git commit --no-gpg-sign -m "docs: update CHANGELOG.org for new version [skip ci]"
-#+end_src
-
-**** 4. Push Changes
-Push the commits and tags:
-
-#+begin_src bash
-git push origin main
-git push origin --tags
-#+end_src
-
-**** 5. Create GitHub Release
-Create a release with notes from the changelog:
-
-#+begin_src bash
-# Clean up any existing tarballs
-rm -f *.tgz
-
-# Generate release tarball
-npm pack
+5. *Create GitHub Release*: Create a release with notes from the changelog
+   #+begin_src bash
+   # Generate release tarball
+   npm pack
    
-# Create draft release with the tarball
-VERSION=$(jq -r .version package.json)
-gh release create "v$VERSION" *.tgz --title "v$VERSION" --notes "See CHANGELOG.org for details" --draft
-#+end_src
-**** 6. Pre-Release Verification
-Test with MCP Inspector before publishing:
+   # Create draft release with the tarball
+   VERSION=$(jq -r .version package.json)
+   gh release create "v$VERSION" *.tgz --title "v$VERSION" --notes "See CHANGELOG.org for details" --draft
+   #+end_src
 
-#+begin_src bash
-# Verify server functionality with MCP Inspector
-make inspector-dev
-# Test in the inspector UI by creating a QR code
-#+end_src
+6. *Pre-Release Verification*: Test with MCP Inspector before publishing
+   #+begin_src bash
+   # Verify server functionality with MCP Inspector
+   make inspector-dev
+   # Test in the inspector UI by creating a QR code
+   #+end_src
 
-**** 7. Publish to npm
-Publish the package (requires 2FA):
+7. *Publish to npm*: Publish the package (requires 2FA)
+   #+begin_src bash
+   npm publish
+   #+end_src
 
-#+begin_src bash
-npm publish
-#+end_src
+8. *Verify Publication*: Confirm the package is properly published
+   #+begin_src bash
+   # Verify npm package
+   npm view @jwalsh/mcp-server-qrcode version
+   #+end_src
 
-**** 8. Verify Publication
-Confirm the package is properly published:
-
-#+begin_src bash
-# Verify npm package
-npm view @jwalsh/mcp-server-qrcode version
-#+end_src
-
-**** 9. Publish GitHub Release
-Remove draft status from the release:
-
-#+begin_src bash
-gh release edit "v$VERSION" --draft=false
-#+end_src
-
-**** 10. Sanity Check
-Verify the package works correctly when installed from npm:
-
-#+begin_src bash
-# Test the published package with a QR code generation
-npm install -g @jwalsh/mcp-server-qrcode
-echo '{"method":"tools/call","params":{"name":"generate-qrcode","arguments":{"content":"https://github.com/jwalsh/mcp-server-qrcode/releases/tag/v'$VERSION'","format":"text"}},"id":1,"jsonrpc":"2.0"}' | mcp-server-qrcode | jq -r '.result.content[1].text'
-#+end_src
-
-When validating with MCP Inspector, the successful connection should look like this:
+9. *Publish GitHub Release*: Remove draft status from the release
+   #+begin_src bash
+   gh release edit "v$VERSION" --draft=false
+   #+end_src
    
-[[file:static/localhost_5173_.png][MCP Inspector Validation]]
+   When validating with MCP Inspector, the successful connection should look like this:
+   
+   [[file:static/localhost_5173_.png][MCP Inspector Validation]]
+
 * Contributing
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature-name`)
+2. Create a feature branch
 3. Make your changes
-4. Run tests locally with `make test`
-5. Run `make ci` to ensure all checks pass
-6. Add appropriate documentation updates if needed
-7. Submit a pull request with a clear description of the changes
-
-For more detailed contribution guidelines, see [[file:CONTRIBUTING.org][CONTRIBUTING.org]].
+4. Run ~make ci~ to ensure all checks pass
+5. Submit a pull request
 
 * Troubleshooting
 - Ensure you're using Node.js 18.0.0 or higher
-- Install ~qrencode~ utility for your system (see Prerequisites section)
+- Install ~qrencode~ utility for your system
 - Run ~make initialize~ if you encounter dependency issues
 - Check ~make setup~ for environment verification
-- If you encounter JSON-RPC errors, use the MCP Inspector to debug requests and responses
-- For CLI issues, try running with `--verbose` flag for additional output
-- For common Claude Desktop integration issues, check the log files at `~/Library/Logs/Claude/mcp*.log`
-
