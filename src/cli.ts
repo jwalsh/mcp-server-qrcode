@@ -88,7 +88,7 @@ program
       }
 
       // Determine resource type and parameters
-      let resourceUri = uri
+      const resourceUri = uri
       let isSampleResource = false
       let content = ''
       let size = 200
