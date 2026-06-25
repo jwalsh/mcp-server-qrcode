@@ -1,0 +1,45 @@
+name: Publish
+
+# Publishes @jwalsh/mcp-server-qrcode to npm when a GitHub Release is published.
+# Uses npm Trusted Publishing (OIDC) — no NPM_TOKEN secret is required.
+# Configure the trusted publisher on npm to point at this workflow file
+# (Publisher: GitHub Actions, repo: jwalsh/mcp-server-qrcode, workflow: publish.yml,
+#  environment: npm-publish). See PUBLISHING.org for the full setup.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC trusted publishing + provenance
+
+jobs:
+  publish:
+    name: Build, verify, and publish
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing via OIDC requires npm >= 11.5.1; setup-node ships an
+      # older npm with Node 22, so upgrade before publishing.
+      - name: Upgrade npm (OIDC trusted publishing support)
+        run: npm install -g npm@latest
+
+      - name: Install dependencies (also builds via prepare)
+        run: npm ci
+
+      - name: Run CI checks before publishing
+        run: npm run ci
+
+      # No NODE_AUTH_TOKEN: npm obtains short-lived credentials via OIDC.
+      - name: Publish to npm
+        run: npm publish --provenance --access public

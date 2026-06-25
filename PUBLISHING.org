@@ -1,0 +1,67 @@
+#+TITLE: Publishing @jwalsh/mcp-server-qrcode
+#+OPTIONS: toc:2
+
+* Overview
+
+The package is published to npm as [[https://www.npmjs.com/package/@jwalsh/mcp-server-qrcode][@jwalsh/mcp-server-qrcode]]
+(public, scoped). Publishing is automated via GitHub Actions using npm
+*Trusted Publishing* (OpenID Connect), so no long-lived =NPM_TOKEN= secret is
+stored in the repository.
+
+Two workflows back the pipeline:
+
+| Workflow                      | Trigger                          | Purpose                                  |
+|-------------------------------+----------------------------------+------------------------------------------|
+| =.github/workflows/ci.yml=      | push / PR to =main=                | Lint, format, typecheck, test (Node 18/20/22) |
+| =.github/workflows/publish.yml= | GitHub Release published (or manual) | Build, re-run CI gate, =npm publish=       |
+
+* One-time setup: npm Trusted Publisher (OIDC)
+
+On npmjs.com, on the package's *Settings → Publishing access*, add a trusted
+publisher with these values (matching =publish.yml=):
+
+- Publisher: *GitHub Actions*
+- Organization or user: =jwalsh=
+- Repository: =mcp-server-qrcode=
+- Workflow filename: =publish.yml=
+- Environment name: =npm-publish=
+
+Also recommended under *Publishing access*:
+
+- Require two-factor authentication and disallow tokens (recommended) — OIDC
+  trusted publishing keeps working under this setting because it does not use a
+  token.
+
+Once configured, the workflow needs no secrets; =id-token: write= in
+=publish.yml= lets the runner mint a short-lived OIDC credential, and
+=--provenance= attaches a verifiable build attestation.
+
+* Releasing a new version
+
+1. Ensure =main= is green (CI passes).
+2. Bump the version and update the changelog:
+   #+begin_src bash
+   npm version patch   # or minor / major  — creates a commit + git tag
+   git push origin main --follow-tags
+   #+end_src
+   (=scripts/release.sh= / =npm run release:{patch,minor,major}= wrap this.)
+3. Create a GitHub Release for the new tag (=gh release create vX.Y.Z --generate-notes=).
+4. The =Publish= workflow fires on the published release, re-runs the full CI
+   gate, then publishes with provenance.
+5. Verify: =npm view @jwalsh/mcp-server-qrcode version=.
+
+The current published version is *1.1.0*; the next release must bump the
+version (npm rejects republishing an existing version).
+
+* Manual / break-glass publish
+
+The publish workflow also supports =workflow_dispatch= for a manual run from the
+Actions tab. A local publish (=npm publish=) still works for a maintainer with
+2FA, but the OIDC path is preferred so every release carries provenance.
+
+* Known follow-up
+
+- =@modelcontextprotocol/sdk= has open advisories fixed by the 1.25.x line
+  (Dependabot PR #19), but that upgrade is a breaking API change (capabilities
+  shape + zod 3→4 type recursion) and is tracked separately — see the PR and
+  =CLAUDE.md=.
