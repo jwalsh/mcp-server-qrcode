@@ -63,10 +63,10 @@
   "author": "Jason Walsh <j@wal.sh> (https://wal.sh)",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "commander": "^11.1.0",
     "qrcode": "^1.5.3",
-    "zod": "^3.24.2"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

@@ -2,23 +2,21 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { generateQRCode } from './qrcode.js'
 
-// Create an MCP server
-const server = new McpServer({
-  name: 'QR Code Generator',
-  version: '0.3.6',
-})
-
-// Register capabilities
-server.server.registerCapabilities({
-  resources: {
-    root: 'qrcode://',
-    get: true,
-    list: true,
+// Create an MCP server. Resource and prompt capabilities are declared here
+// because they are served via low-level setRequestHandler calls below (the
+// tools capability is registered automatically by server.tool()).
+const server = new McpServer(
+  {
+    name: 'QR Code Generator',
+    version: '0.3.6',
   },
-  prompts: {
-    list: true,
-  },
-})
+  {
+    capabilities: {
+      resources: {},
+      prompts: {},
+    },
+  }
+)
 
 // Add the QR code generation tool
 server.tool(
@@ -106,7 +104,7 @@ server.tool(
 // Set up resource handlers manually to work with the MCP protocol
 const resourcesListRequestSchema = z.object({
   method: z.literal('resources/list'),
-  params: z.object({}),
+  params: z.object({}).optional(),
 })
 
 server.server.setRequestHandler(resourcesListRequestSchema, async () => {
@@ -530,7 +528,7 @@ server.server.setRequestHandler(resourcesGetRequestSchema, async request => {
 // Add resource templates list method
 const resourcesTemplatesListRequestSchema = z.object({
   method: z.literal('resources/templates/list'),
-  params: z.object({}),
+  params: z.object({}).optional(),
 })
 
 server.server.setRequestHandler(resourcesTemplatesListRequestSchema, async () => {
@@ -696,7 +694,7 @@ server.server.setRequestHandler(resourcesTemplatesListRequestSchema, async () =>
 // Add prompts list method
 const promptsListRequestSchema = z.object({
   method: z.literal('prompts/list'),
-  params: z.object({}),
+  params: z.object({}).optional(),
 })
 
 server.server.setRequestHandler(promptsListRequestSchema, async () => {
