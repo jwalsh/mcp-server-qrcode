@@ -13,10 +13,11 @@ describe('QR Code Templates and Prompts', () => {
   const indexPath = path.resolve(__dirname, '../index.ts')
   const sourceCode = fs.readFileSync(indexPath, 'utf-8')
 
-  test('server has prompts capability registered', () => {
-    // Check for prompts capability in the source code
-    expect(sourceCode).toContain('prompts: {')
-    expect(sourceCode).toContain('list: true')
+  test('server has resource and prompt capabilities registered', () => {
+    // Capabilities are declared on the McpServer constructor
+    expect(sourceCode).toContain('capabilities: {')
+    expect(sourceCode).toContain('resources: {}')
+    expect(sourceCode).toContain('prompts: {}')
   })
 
   test('server has new template types registered', () => {
